@@ -12,7 +12,7 @@ class MethodNotAllowedException extends \Exception
      */
     protected $_allowedMethods = array();
 
-    function __construct(array $allowedMethods, $message = null, $code = 0, $previous = null)
+    public function __construct(array $allowedMethods, $message = null, $code = 0, $previous = null)
     {
         $this->_allowedMethods = array_map('strtoupper', $allowedMethods);
 
@@ -24,7 +24,7 @@ class MethodNotAllowedException extends \Exception
      *
      * @return array
      */
-    function getAllowedMethods()
+    public function getAllowedMethods()
     {
         return $this->_allowedMethods;
     }

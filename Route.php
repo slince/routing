@@ -7,6 +7,65 @@ namespace Slince\Routing;
 
 class Route implements RouteInterface
 {
+    /**
+     * head
+     * @var string
+     */
+    const HEAD = 'HEAD';
+
+    /**
+     * get
+     * @var string
+     */
+    const GET = 'GET';
+
+    /**
+     * post
+     * @var string
+     */
+    const POST = 'POST';
+
+    /**
+     * put
+     * @var string
+     */
+    const PUT = 'PUT';
+
+    /**
+     * patch
+     * @var string
+     */
+    const PATCH = 'PATCH';
+
+    /**
+     * delete
+     * @var string
+     */
+    const DELETE = 'DELETE';
+
+    /**
+     * purge
+     * @var string
+     */
+    const PURGE = 'PURGE';
+
+    /**
+     * options
+     * @var string
+     */
+    const OPTIONS = 'OPTIONS';
+
+    /**
+     * trace
+     * @var string
+     */
+    const TRACE = 'TRACE';
+
+    /**
+     * connect
+     * @var string
+     */
+    const CONNECT = 'CONNECT';
 
     /**
      * path
@@ -21,7 +80,7 @@ class Route implements RouteInterface
     protected $action;
 
     /**
-     * 默认参数
+     * Defaults
      * @var array
      */
     protected $defaults;
@@ -57,21 +116,19 @@ class Route implements RouteInterface
     protected $parameters;
 
     /**
-     * 是否已经编译
+     * whether the route has been compiled
      * @var bool
      */
     protected $isCompiled = false;
 
     /**
-     * host regex
-     *
+     * the host regex
      * @var string
      */
     protected $hostRegex;
 
     /**
-     * path regex
-     *
+     * the path regex
      * @var string
      */
     protected $pathRegex;
@@ -82,7 +139,7 @@ class Route implements RouteInterface
      */
     protected $variables = [];
 
-    function __construct(
+    public function __construct(
         $path,
         $action,
         array $defaults = [],
@@ -101,30 +158,26 @@ class Route implements RouteInterface
     }
 
     /**
-     * 设置path
-     * @param string $path
-     * @return $this
+     * {@inheritdoc}
      */
-    function setPath($path)
+    public function setPath($path)
     {
         $this->path = '/' . trim($path, '/');
         return $this;
     }
 
     /**
-     * 获取path
-     * @return string
+     * {@inheritdoc}
      */
-    function getPath()
+    public function getPath()
     {
         return $this->path;
     }
 
     /**
-     * 获取path regex
-     * @return string
+     * {@inheritdoc}
      */
-    function getPathRegex()
+    public function getPathRegex()
     {
         return $this->pathRegex;
     }
@@ -134,7 +187,7 @@ class Route implements RouteInterface
      * @param $action
      * @return $this
      */
-    function setAction($action)
+    public function setAction($action)
     {
         $this->action = $action;
         return $this;
@@ -144,26 +197,23 @@ class Route implements RouteInterface
      * 获取action
      * @return mixed
      */
-    function getAction()
+    public function getAction()
     {
         return $this->action;
     }
 
     /**
-     * 获取默认
-     * @return array
+     * {@inheritdoc}
      */
-    function getDefaults()
+    public function getDefaults()
     {
         return $this->defaults;
     }
 
     /**
-     * 设置默认参数
-     * @param array $defaults
-     * @return $this
+     * {@inheritdoc}
      */
-    function setDefaults(array $defaults)
+    public function setDefaults(array $defaults)
     {
         $this->defaults = $defaults;
         return $this;
@@ -174,7 +224,7 @@ class Route implements RouteInterface
      * @param $name
      * @return mixed|null
      */
-    function getDefault($name)
+    public function getDefault($name)
     {
         return isset($this->defaults[$name]) ? $this->defaults[$name] : null;
     }
@@ -184,203 +234,168 @@ class Route implements RouteInterface
      * @param $name
      * @return bool
      */
-    function hasDefault($name)
+    public function hasDefault($name)
     {
         return isset($this->defaults[$name]);
     }
 
     /**
-     * 设置parameter
-     * @param string $name
-     * @param mixed $parameter
-     * @return $this
+     * {@inheritdoc}
      */
-    function setParameter($name, $parameter)
+    public function setParameter($name, $parameter)
     {
         $this->parameters[$name] = $parameter;
         return $this;
     }
 
-
     /**
-     * 获取parameter
-     * @param string $name
-     * @param null $default
-     * @return mixed|null
+     * {@inheritdoc}
      */
-    function getParameter($name, $default = null)
+    public function getParameter($name, $default = null)
     {
         return isset($this->parameters[$name]) ? $this->parameters[$name] : $default;
     }
 
     /**
-     * 是否存在参数
-     * @param string $name
-     * @return bool
+     * {@inheritdoc}
      */
-    function hasParameter($name)
+    public function hasParameter($name)
     {
         return isset($this->parameters[$name]);
     }
 
     /**
-     * 设置parameters
-     * @param array $parameters
-     * @return $this\
+     * {@inheritdoc}
      */
-    function setParameters(array $parameters)
+    public function setParameters(array $parameters)
     {
         $this->parameters = $parameters;
         return $this;
     }
 
     /**
-     * 获取parameters
-     * @return array
+     * {@inheritdoc}
      */
-    function getParameters()
+    public function getParameters()
     {
         return $this->parameters;
     }
 
     /**
-     * 设置requirements
-     * @param array $requirements
-     * @return $this
+     * {@inheritdoc}
      */
-    function setRequirements(array $requirements)
+    public function setRequirements(array $requirements)
     {
         $this->requirements = $requirements;
         return $this;
     }
 
     /**
-     * 设置单个requirement
-     * @param string $name
-     * @param string $requirement
-     * @return $this
+     * {@inheritdoc}
      */
-    function setRequirement($name, $requirement)
+    public function setRequirement($name, $requirement)
     {
         $this->requirements[$name] = $requirement;
         return $this;
     }
 
     /**
-     * 添加requirements
-     * @param array $requirements
-     * @return RouteInterface
+     * {@inheritdoc}
      */
-    function addRequirements(array $requirements)
+    public function addRequirements(array $requirements)
     {
         $this->requirements += $requirements;
         return $this;
     }
 
     /**
-     * 获取requirements
-     * @return array
+     * {@inheritdoc}
      */
-    function getRequirements()
+    public function getRequirements()
     {
         return $this->requirements;
     }
 
     /**
-     * 获取requirement
-     * @param string $name
-     * @param null $default
-     * @return string|null
+     * {@inheritdoc}
      */
-    function getRequirement($name, $default = null)
+    public function getRequirement($name, $default = null)
     {
         return isset($this->requirements[$name]) ? $this->requirements[$name] : $default;
     }
 
     /**
-     * 设置schemes
-     * @param array $schemes
-     * @return $this
+     * {@inheritdoc}
      */
-    function setSchemes(array $schemes)
+    public function setSchemes(array $schemes)
     {
         $this->schemes = $schemes;
         return $this;
     }
 
     /**
-     * 获取schemes
-     * @return array
+     * {@inheritdoc}
      */
-    function getSchemes()
+    public function getSchemes()
     {
         return $this->schemes;
     }
 
     /**
-     * 设置methods
-     * @param array $methods
-     * @return $this
+     * {@inheritdoc}
      */
-    function setMethods(array $methods)
+    public function setMethods(array $methods)
     {
         $this->methods = array_map('strtolower', $methods);
         return $this;
     }
 
     /**
-     * 获取method
-     * @return array
+     * {@inheritdoc}
      */
-    function getMethods()
+    public function getMethods()
     {
         return $this->methods;
     }
 
     /**
-     * 设置host
-     * @param string $host
-     * @return $this
+     * {@inheritdoc}
      */
-    function setHost($host)
+    public function setHost($host)
     {
         $this->host = $host;
         return $this;
     }
 
     /**
-     * 获取host
-     * @return string
+     * {@inheritdoc}
      */
-    function getHost()
+    public function getHost()
     {
         return $this->host;
     }
 
     /**
-     * 获取host regex
-     * @return string
+     * {@inheritdoc}
      */
-    function getHostRegex()
+    public function getHostRegex()
     {
         return $this->hostRegex;
     }
 
     /**
-     * route是否已经编译
-     * @return boolean
+     * {@inheritdoc}
      */
-    function isCompiled()
+    public function isCompiled()
     {
         return $this->isCompiled;
     }
-    
+
     /**
-     * 编译route
-     * @param boolean $recompile
+     * Complies the route
      * @return Route
      */
-    function compile($recompile = false)
+    public function compile($recompile = false)
     {
         if (!$this->isCompiled || $recompile) {
             $this->hostRegex = $this->parseToRegex($this->getHost());
@@ -391,16 +406,16 @@ class Route implements RouteInterface
     }
 
     /**
-     * 获取variables
+     * Gets all variables that been compiled
      * @return array
      */
-    function getVariables()
+    public function getVariables()
     {
         return $this->variables;
     }
 
     /**
-     * 解析成标准的正则字符串
+     * Parses the path to regex
      * @param string $path
      * @return string
      */

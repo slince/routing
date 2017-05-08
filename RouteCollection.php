@@ -25,7 +25,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
      */
     protected $actions = [];
 
-    function __construct(array $routes = [])
+    public function __construct(array $routes = [])
     {
         $this->routes = $routes;
     }
@@ -35,7 +35,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
      * @param RouteInterface $route
      * @param string|null $name
      */
-    function add(RouteInterface $route, $name = null)
+    public function add(RouteInterface $route, $name = null)
     {
         if (!is_null($name)) {
             $this->names[$name] = $route;
@@ -52,7 +52,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
      * @param string $name
      * @return Route|null
      */
-    function getByName($name)
+    public function getByName($name)
     {
         return isset($this->names[$name]) ? $this->names[$name] : null;
     }
@@ -62,7 +62,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
      * @param string $action
      * @return Route|null
      */
-    function getByAction($action)
+    public function getByAction($action)
     {
         return isset($this->actions[$action]) ? $this->actions[$action] : null;
     }
@@ -71,7 +71,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
      * 获取全部的命名路由
      * @return array
      */
-    function getNameRoute()
+    public function getNameRoute()
     {
         return $this->names;
     }
@@ -80,7 +80,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
      * 获取全部action路由
      * @return array
      */
-    function getActionRoutes()
+    public function getActionRoutes()
     {
         return $this->actions;
     }
@@ -89,7 +89,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
      * 获取所有的路由
      * @return array
      */
-    function all()
+    public function all()
     {
         return $this->routes;
     }
@@ -98,7 +98,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
      * 获取路由数量
      * @return int
      */
-    function count()
+    public function count()
     {
         return count($this->routes);
     }
@@ -107,7 +107,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
      * 实现接口
      * @return \ArrayIterator
      */
-    function getIterator()
+    public function getIterator()
     {
         return new \ArrayIterator($this->routes);
     }
@@ -116,7 +116,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
      * 实现RouteBuilderTrait方法
      * @return $this
      */
-    function getRoutes()
+    public function getRoutes()
     {
         return $this;
     }

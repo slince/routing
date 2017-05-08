@@ -14,17 +14,17 @@ interface MatcherInterface
      * @param RouteCollection $routes
      * @return RouteInterface
      */
-    function match($path, RouteCollection $routes);
+    public function match($path, RouteCollection $routes);
 
     /**
      * 设置上下文
      * @param RequestContext $context
      */
-    function setContext(RequestContext $context);
+    public function setContext(RequestContext $context);
 
     /**
      * 获取上下文
      * @return RequestContext $context
      */
-    function getContext();
+    public function getContext();
 }

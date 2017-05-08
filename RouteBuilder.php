@@ -19,13 +19,13 @@ class RouteBuilder
      */
     protected $routes;
 
-    function __construct($prefix, RouteCollection $routes)
+    public function __construct($prefix, RouteCollection $routes)
     {
         $this->setPrefix($prefix);
         $this->routes = $routes;
     }
 
-    function setPrefix($prefix)
+    public function setPrefix($prefix)
     {
         if (!empty($prefix)) {
             $this->prefix = '/' . trim($prefix, '/');
@@ -36,7 +36,7 @@ class RouteBuilder
      * 获取当前的前缀
      * @return string
      */
-    function getPrefix()
+    public function getPrefix()
     {
         return $this->prefix;
     }
@@ -45,7 +45,7 @@ class RouteBuilder
      * 获取routes
      * @return RouteCollection
      */
-    function getRoutes()
+    public function getRoutes()
     {
         return $this->routes;
     }
@@ -56,7 +56,7 @@ class RouteBuilder
      * @param $arguments
      * @return Route
      */
-    function http($path, $arguments)
+    public function http($path, $arguments)
     {
         return $this->add($path, $arguments);
     }
@@ -67,7 +67,7 @@ class RouteBuilder
      * @param $arguments
      * @return $this
      */
-    function https($path, $arguments)
+    public function https($path, $arguments)
     {
         return $this->add($path, $arguments)->setSchemes([
             'https'
@@ -80,7 +80,7 @@ class RouteBuilder
      * @param $arguments
      * @return $this
      */
-    function get($path, $arguments)
+    public function get($path, $arguments)
     {
         return $this->add($path, $arguments)->setMethods([
             HttpMethod::GET,
@@ -94,7 +94,7 @@ class RouteBuilder
      * @param $arguments
      * @return $this
      */
-    function post($path, $arguments)
+    public function post($path, $arguments)
     {
         return $this->add($path, $arguments)->setMethods([
             HttpMethod::POST
@@ -107,7 +107,7 @@ class RouteBuilder
      * @param $arguments
      * @return $this
      */
-    function put($path, $arguments)
+    public function put($path, $arguments)
     {
         return $this->add($path, $arguments)->setMethods([
             HttpMethod::PUT
@@ -120,7 +120,7 @@ class RouteBuilder
      * @param $arguments
      * @return $this
      */
-    function patch($path, $arguments)
+    public function patch($path, $arguments)
     {
         return $this->add($path, $arguments)->setMethods([
             HttpMethod::PATCH
@@ -133,7 +133,7 @@ class RouteBuilder
      * @param $arguments
      * @return $this
      */
-    function delete($path, $arguments)
+    public function delete($path, $arguments)
     {
         return $this->add($path, $arguments)->setMethods([
             HttpMethod::DELETE
@@ -146,7 +146,7 @@ class RouteBuilder
      * @param $arguments
      * @return Route
      */
-    function add($path, $arguments)
+    public function add($path, $arguments)
     {
         $name = null;
         $action = null;
@@ -167,7 +167,7 @@ class RouteBuilder
      * @param $action
      * @return Route
      */
-    function newRoute($path, $action)
+    public function newRoute($path, $action)
     {
         $path = $this->getPrefix() . '/' . trim($path, '/');
         return new Route($path, $action);
@@ -178,7 +178,7 @@ class RouteBuilder
      * @param string $prefix
      * @param \Closure $callback
      */
-    function prefix($prefix, \Closure $callback)
+    public function prefix($prefix, \Closure $callback)
     {
         $originPrefix = $this->getPrefix();
         $routeBuilder = new RouteBuilder($originPrefix . '/' . $prefix, $this->routes);

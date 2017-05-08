@@ -39,7 +39,7 @@ class Router
      */
     protected $routeBuilder;
 
-    function __construct(RouteCollection $routes, RequestContext $context = null)
+    public function __construct(RouteCollection $routes, RequestContext $context = null)
     {
         $this->routes = $routes;
         $this->context = $context;
@@ -51,7 +51,7 @@ class Router
      * @param string $path
      * @return RouteInterface
      */
-    function match($path)
+    public function match($path)
     {
         $route = $this->getMatcher()->match($path, $this->routes);
         return $route;
@@ -64,7 +64,7 @@ class Router
      * @param boolean $absolute
      * @return string
      */
-    function generate(RouteInterface $route, $parameters = [], $absolute = false)
+    public function generate(RouteInterface $route, $parameters = [], $absolute = false)
     {
         return $this->getGenerator()->generate($route, $parameters, $absolute);
     }
@@ -77,7 +77,7 @@ class Router
      * @return string
      * @throws RouteNotFoundException
      */
-    function generateByName($name, $parameters = [], $absolute = false)
+    public function generateByName($name, $parameters = [], $absolute = false)
     {
         $route = $this->routes->getByName($name);
         if (is_null($route)) {
@@ -94,7 +94,7 @@ class Router
      * @return string
      * @throws RouteNotFoundException
      */
-    function generateByAction($action, $parameters = [], $absolute = false)
+    public function generateByAction($action, $parameters = [], $absolute = false)
     {
         $route = $this->routes->getByAction($action);
         if (is_null($route)) {
@@ -107,7 +107,7 @@ class Router
      * 获取routes
      * @return RouteCollection
      */
-    function getRoutes()
+    public function getRoutes()
     {
         return $this->routes;
     }
@@ -116,7 +116,7 @@ class Router
      * 获取matcher
      * @return Matcher|MatcherInterface
      */
-    function getMatcher()
+    public function getMatcher()
     {
         if (is_null($this->matcher)) {
             $this->matcher = Factory::createMatcher($this->context);
@@ -129,7 +129,7 @@ class Router
      * 获取generator
      * @return Generator|GeneratorInterface
      */
-    function getGenerator()
+    public function getGenerator()
     {
         if (is_null($this->generator)) {
             if (is_null($this->context)) {
@@ -144,7 +144,7 @@ class Router
      * 设置上下文
      * @param RequestContext $context
      */
-    function setContext(RequestContext $context)
+    public function setContext(RequestContext $context)
     {
         $this->context = $context;
     }
@@ -153,7 +153,7 @@ class Router
      * 获取上下文
      * @return RequestContext $context
      */
-    function getContext()
+    public function getContext()
     {
         return $this->context;
     }

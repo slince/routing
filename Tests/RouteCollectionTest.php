@@ -7,7 +7,7 @@ use Slince\Routing\RouteCollection;
 
 class RouteCollectionTest extends \PHPUnit_Framework_TestCase
 {
-    function testAddRoute()
+    public function testAddRoute()
     {
         $routes = new RouteCollection();
         $this->assertEquals([], $routes->all());
@@ -15,7 +15,7 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertNotEmpty($routes->all());
     }
 
-    function testConstruct()
+    public function testConstruct()
     {
         $routes = new RouteCollection([
             new Route('/foo', ''),
@@ -24,7 +24,7 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertCount(2, $routes);
     }
 
-    function testNamedRoute()
+    public function testNamedRoute()
     {
         $routes = new RouteCollection();
         $route = new Route('/foo', '');
@@ -32,7 +32,7 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($route, $routes->getByName('foo'));
     }
 
-    function testActionRoute()
+    public function testActionRoute()
     {
         $routes = new RouteCollection();
         $route = new Route('/foo', 'foo@bar');
@@ -40,7 +40,7 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($route, $routes->getByAction('foo@bar'));
     }
 
-    function testRouteBuilder()
+    public function testRouteBuilder()
     {
         $routes = new RouteCollection();
         $routeBuilder = new RouteBuilder('/', $routes);
@@ -66,7 +66,7 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['delete'], $route->getMethods());
     }
 
-    function testPrefix()
+    public function testPrefix()
     {
         $routes = new RouteCollection();
         $routeBuilder = new RouteBuilder('/', $routes);

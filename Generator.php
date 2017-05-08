@@ -28,7 +28,7 @@ class Generator implements GeneratorInterface
      */
     protected $routeVariables = [];
 
-    function __construct(RequestContext $context)
+    public function __construct(RequestContext $context)
     {
         $this->context = $context;
     }
@@ -37,7 +37,7 @@ class Generator implements GeneratorInterface
      * 设置上下文
      * @param RequestContext $context
      */
-    function setContext(RequestContext $context)
+    public function setContext(RequestContext $context)
     {
         $this->context = $context;
     }
@@ -46,7 +46,7 @@ class Generator implements GeneratorInterface
      * 获取上下文
      * @return RequestContext $context
      */
-    function getContext()
+    public function getContext()
     {
         return $this->context;
     }
@@ -76,7 +76,7 @@ class Generator implements GeneratorInterface
      * @param boolean $absolute
      * @return string
      */
-    function generate(RouteInterface $route, $parameters = [], $absolute = true)
+    public function generate(RouteInterface $route, $parameters = [], $absolute = true)
     {
         $parameters = $this->getParameters($route, $parameters);
         $uri = '';
@@ -101,7 +101,7 @@ class Generator implements GeneratorInterface
      * @param $parameters
      * @return array
      */
-    function getParameters(RouteInterface $route, $parameters)
+    public function getParameters(RouteInterface $route, $parameters)
     {
         return array_replace(
             $route->getDefaults(),

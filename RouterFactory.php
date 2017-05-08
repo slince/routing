@@ -13,7 +13,7 @@ class RouterFactory
      * @param RequestContext|null $context
      * @return Router
      */
-    static function create(RequestContext $context = null)
+    public static function create(RequestContext $context = null)
     {
         $routes = Factory::createRoutes();
         return new Router($routes, $context);

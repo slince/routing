@@ -7,140 +7,139 @@ namespace Slince\Routing;
 
 interface RouteInterface
 {
-
     /**
-     * 设置path
+     * Sets the route path
      * @param string $path
      * @return RouteInterface
      */
-    function setPath($path);
+    public function setPath($path);
 
     /**
-     * 获取path
+     * Gets the route path
      * @return string path
      */
-    function getPath();
+    public function getPath();
 
     /**
-     * 获取path regex
+     * Gets the path regex
      * @return string
      */
-    function getPathRegex();
+    public function getPathRegex();
 
     /**
-     * 设置parameter
+     * Sets the route parameters
      * @param string $name
      * @param mixed $parameter
      * @return RouteInterface
      */
-    function setParameter($name, $parameter);
+    public function setParameter($name, $parameter);
 
     /**
-     * 获取parameter
+     * Gets the route parameters
      * @param string $name
      * @param string $default
      * @return RouteInterface
      */
-    function getParameter($name, $default = null);
+    public function getParameter($name, $default = null);
 
     /**
-     * 是否存在参数
+     * Checks whether the parameter exists
      * @param string $name
      * @return mixed
      */
-    function hasParameter($name);
+    public function hasParameter($name);
 
     /**
-     * 设置parameters
+     * Sets all parameters
      * @param array $parameters
      * @return RouteInterface
      */
-    function setParameters(array $parameters);
+    public function setParameters(array $parameters);
 
     /**
-     * 获取parameters
+     * Gets all parameters
      * @return array
      */
-    function getParameters();
+    public function getParameters();
 
     /**
-     * 设置requirements
+     * Sets the requirements of the route
      * @param array $requirements
      * @return RouteInterface
      */
-    function setRequirements(array $requirements);
+    public function setRequirements(array $requirements);
 
     /**
-     * 设置单个requirement
+     * Sets a requirement by specified name and value
      * @param string $name
      * @param string $requirement
      * @return RouteInterface
      */
-    function setRequirement($name, $requirement);
+    public function setRequirement($name, $requirement);
 
     /**
-     * 添加requirements
+     * Add the requirements of the route (not replace)
      * @param array $requirements
      * @return RouteInterface
      */
-    function addRequirements(array $requirements);
+    public function addRequirements(array $requirements);
 
     /**
-     * 获取requirements
+     * Gets all requirements
      * @return array
      */
-    function getRequirements();
+    public function getRequirements();
 
     /**
-     * 获取requirement
+     * Gets a requirement by its name
      * @param string $name
      * @param string $default
      * @return string|null
      */
-    function getRequirement($name, $default = null);
+    public function getRequirement($name, $default = null);
 
     /**
-     * 设置schemes
+     * Sets the route schemes
      * @param array $schemes
      * @return RouteInterface
      */
-    function setSchemes(array $schemes);
+    public function setSchemes(array $schemes);
 
     /**
-     * 获取schemes
+     * Gets all schemes
      * @return array
      */
-    function getSchemes();
+    public function getSchemes();
 
     /**
-     * 设置methods
+     * Sets the route request methods
      * @param array $methods
      * @return RouteInterface
      */
-    function setMethods(array $methods);
+    public function setMethods(array $methods);
 
     /**
-     * 获取method
+     * Gets all request methods that the route supports
      * @return array
      */
-    function getMethods();
+    public function getMethods();
 
     /**
-     * 设置host
+     * Set the route host
      * @param string $host
      * @return RouteInterface
      */
-    function setHost($host);
+    public function setHost($host);
 
     /**
-     * 获取host
+     * Gets the host
      * @return string
      */
-    function getHost();
+    public function getHost();
 
     /**
-     * 获取host regex
+     * Gets the route host regex
      * @return string
      */
-    function getHostRegex();
+    public function getHostRegex();
 }

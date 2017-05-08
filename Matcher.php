@@ -17,7 +17,7 @@ class Matcher implements MatcherInterface
      */
     protected $context;
 
-    function __construct(RequestContext $context = null)
+    public function __construct(RequestContext $context = null)
     {
         $this->context = $context;
     }
@@ -28,7 +28,7 @@ class Matcher implements MatcherInterface
      * @param RouteCollection $routes
      * @return RouteInterface
      */
-    function match($path, RouteCollection $routes)
+    public function match($path, RouteCollection $routes)
     {
         $path = '/' . ltrim($path, '/');
         $route = is_null($this->context) ? $this->findRouteWithoutRequestContext($path, $routes)
@@ -42,7 +42,7 @@ class Matcher implements MatcherInterface
      * 设置上下文
      * @param RequestContext $context
      */
-    function setContext(RequestContext $context)
+    public function setContext(RequestContext $context)
     {
         $this->context = $context;
     }
@@ -51,7 +51,7 @@ class Matcher implements MatcherInterface
      * 获取上下文
      * @return RequestContext $context
      */
-    function getContext()
+    public function getContext()
     {
         return $this->context;
     }

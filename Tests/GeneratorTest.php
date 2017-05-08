@@ -7,14 +7,14 @@ use Slince\Routing\Route;
 
 class GeneratorTest extends \PHPUnit_Framework_TestCase
 {
-    function testSimpleGenerate()
+    public function testSimpleGenerate()
     {
         $route = new Route('/path', '');
         $generator = new Generator(RequestContext::create());
         $this->assertEquals('http://localhost/path', $generator->generate($route));
     }
 
-    function testGenerateWithRegex()
+    public function testGenerateWithRegex()
     {
         $route = new Route('/users/{id}', '');
         $generator = new Generator(RequestContext::create());
@@ -23,7 +23,7 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('http://localhost/users/steven', $generator->generate($route, ['id' => 'steven']));
     }
 
-    function testGenerateException()
+    public function testGenerateException()
     {
         $route = new Route('/users/{id}', '');
         $generator = new Generator(RequestContext::create());
@@ -32,7 +32,7 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
         $generator->generate($route);
     }
 
-    function testGenerateExceptionInvalidType()
+    public function testGenerateExceptionInvalidType()
     {
         $route = new Route('/users/{id}', '');
         $route->setRequirement('id', '\d+');
@@ -43,7 +43,7 @@ class GeneratorTest extends \PHPUnit_Framework_TestCase
         echo $generator->generate($route, ['id' => 'steven']);
     }
 
-    function testGenerateAdvanced()
+    public function testGenerateAdvanced()
     {
         $route = new Route('/users/{id}/{action}', '');
         $route->setRequirement('id', '\d+');

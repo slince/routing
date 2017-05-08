@@ -11,12 +11,12 @@ use Slince\Routing\RouteCollection;
 class RouterTest extends \PHPUnit_Framework_TestCase
 {
 
-    function testCreateRouter()
+    public function testCreateRouter()
     {
         $this->assertInstanceOf('Slince\Routing\Router', RouterFactory::create());
     }
 
-    function testMatch()
+    public function testMatch()
     {
         $router = RouterFactory::create();
         $routes = $router->getRoutes();
@@ -24,7 +24,7 @@ class RouterTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('/path', $router->match('/path')->getPath());
     }
 
-    function testGenerate()
+    public function testGenerate()
     {
         $context = RequestContext::create();
         $context->setHost('m.domain.com');

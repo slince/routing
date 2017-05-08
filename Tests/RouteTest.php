@@ -25,13 +25,13 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         );
     }
 
-    function testInterface()
+    public function testInterface()
     {
         $route = new Route('/path', '');
         $this->assertInstanceOf('Slince\Routing\RouteInterface', $route);
     }
     
-    function testPath()
+    public function testPath()
     {
         $route = new Route('/path', '');
         $this->assertEquals('/path', $route->getPath());
@@ -46,7 +46,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($route, $route->setPath('/'));
     }
 
-    function testDefaults()
+    public function testDefaults()
     {
         $route = new Route('/path', '');
         $route->setDefaults(['foo' => 'bar']);
@@ -56,7 +56,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertTrue($route->hasDefault('foo'));
     }
 
-    function testRequirements()
+    public function testRequirements()
     {
         $route = new Route('/path', '');
         $route->setRequirements(['id' => '\d+']);
@@ -67,7 +67,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['id' => '\d+', 'name'=>'\w+'], $route->getRequirements());
     }
 
-    function testSchemes()
+    public function testSchemes()
     {
         $route = new Route('/path', '');
         $this->assertEquals([], $route->getSchemes());
@@ -75,7 +75,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['http'], $route->getSchemes());
     }
 
-    function testMethods()
+    public function testMethods()
     {
         $route = new Route('/path', '');
         $this->assertEquals([], $route->getMethods());
@@ -83,7 +83,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(['get'], $route->getMethods());
     }
 
-    function testHost()
+    public function testHost()
     {
         $route = new Route('/path', '');
         $this->assertEquals('', $route->getHost());
@@ -91,7 +91,7 @@ class RouteTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('www.domain.com', $route->getHost());
     }
 
-    function testCompile()
+    public function testCompile()
     {
         $route = new Route('/users/{id}/{action}', '');
         $this->assertFalse($route->isCompiled());

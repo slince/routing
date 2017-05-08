@@ -14,7 +14,7 @@ class Factory
      * @param RequestContext $context
      * @return Matcher
      */
-    static function createMatcher(RequestContext $context = null)
+    public static function createMatcher(RequestContext $context = null)
     {
         return new Matcher($context);
     }
@@ -24,7 +24,7 @@ class Factory
      * @param RequestContext $context
      * @return Generator
      */
-    static function createGenerator(RequestContext $context)
+    public static function createGenerator(RequestContext $context)
     {
         return new Generator($context);
     }
@@ -35,7 +35,7 @@ class Factory
      * @param array $routes
      * @return RouteCollection
      */
-    static function createRoutes($routes = [])
+    public static function createRoutes($routes = [])
     {
         return new RouteCollection($routes);
     }

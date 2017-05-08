@@ -8,7 +8,7 @@ use Slince\Routing\RouteCollection;
 
 class MatcherTest extends \PHPUnit_Framework_TestCase
 {
-    function testContext()
+    public function testContext()
     {
         $matcher = new Matcher();
         $this->assertNull($matcher->getContext());
@@ -16,7 +16,7 @@ class MatcherTest extends \PHPUnit_Framework_TestCase
         $this->assertInstanceOf('Slince\Routing\RequestContext', $matcher->getContext());
     }
     
-    function testSimpleMatcher()
+    public function testSimpleMatcher()
     {
         $routes = new RouteCollection();
         $route = new Route('/path', '');
@@ -26,7 +26,7 @@ class MatcherTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals($_route, $route);
     }
 
-    function testMatchWithRegex()
+    public function testMatchWithRegex()
     {
         $routes = new RouteCollection();
         $route = new Route('/foo/{id}/bar/{name}', '');
@@ -47,7 +47,7 @@ class MatcherTest extends \PHPUnit_Framework_TestCase
         ], $route->getParameters());
     }
 
-    function testRouteNotFoundException()
+    public function testRouteNotFoundException()
     {
         $routes = new RouteCollection();
         $route = new Route('/foo/{id}/bar/{name}', '');
@@ -67,7 +67,7 @@ class MatcherTest extends \PHPUnit_Framework_TestCase
         $matcher->match('/foo/100/bar/steven', $routes);
     }
 
-    function testMethodNotAllowedException()
+    public function testMethodNotAllowedException()
     {
         $routes = new RouteCollection();
         $route = new Route('/foo/{id}/bar/{name}', '');
@@ -81,7 +81,7 @@ class MatcherTest extends \PHPUnit_Framework_TestCase
         $matcher->match('/foo/100/bar/steven', $routes);
     }
 
-    function testSchemes()
+    public function testSchemes()
     {
         $routes = new RouteCollection();
         $route = new Route('/foo/{id}/bar/{name}', '');

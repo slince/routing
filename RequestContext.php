@@ -347,7 +347,7 @@ class RequestContext
      *
      * @return $this
      */
-    static function create()
+    public static function create()
     {
         return new static();
     }
@@ -357,7 +357,7 @@ class RequestContext
      *
      * @return boolean
      */
-    function isSecure()
+    public function isSecure()
     {
         return strcasecmp($this->getScheme(), 'https') == 0;
     }
