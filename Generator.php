@@ -79,7 +79,7 @@ class Generator
     {
         $parameters = $this->getParameters($route, $parameters);
         $uri = '';
-        // 生成绝对路径，需要构建scheme host port
+        //generate absolute url
         if ($absolute) {
             list ($scheme, $port) = $this->getRouteSchemeAndPort($route);
             $host = $this->getRouteHost($route, $parameters);
