@@ -7,23 +7,22 @@ namespace Slince\Routing;
 
 use Slince\Routing\Exception\InvalidArgumentException;
 
-class Generator implements GeneratorInterface
+class Generator
 {
-
     /**
-     * request context
+     * The request context
      * @var RequestContext
      */
     protected $context;
 
     /**
-     * 严格检查
+     * Whether to strictly checks the requirements
      * @var boolean
      */
     protected $strictRequirements = false;
 
     /**
-     * 最近一个route的variables
+     * The variable
      * @var array
      */
     protected $routeVariables = [];
@@ -34,7 +33,7 @@ class Generator implements GeneratorInterface
     }
 
     /**
-     * 设置上下文
+     * Sets the request context
      * @param RequestContext $context
      */
     public function setContext(RequestContext $context)
@@ -43,7 +42,7 @@ class Generator implements GeneratorInterface
     }
 
     /**
-     * 获取上下文
+     * Gets the request context
      * @return RequestContext $context
      */
     public function getContext()
@@ -52,7 +51,7 @@ class Generator implements GeneratorInterface
     }
 
     /**
-     * 严格匹配模式
+     * Sets whether to strictly check the requirements
      * @param boolean $enabled
      */
     public function setStrictRequirements($enabled)
@@ -61,7 +60,7 @@ class Generator implements GeneratorInterface
     }
 
     /**
-     * 是否严格匹配模式
+     * Checks whether to strictly check the requirements
      * @return boolean
      */
     public function isStrictRequirements()
@@ -70,13 +69,13 @@ class Generator implements GeneratorInterface
     }
 
     /**
-     * 生成特定路由的url
-     * @param RouteInterface $route
+     * Generates the url for the route
+     * @param Route $route
      * @param array $parameters
      * @param boolean $absolute
      * @return string
      */
-    public function generate(RouteInterface $route, $parameters = [], $absolute = true)
+    public function generate(Route $route, $parameters = [], $absolute = true)
     {
         $parameters = $this->getParameters($route, $parameters);
         $uri = '';
@@ -97,11 +96,11 @@ class Generator implements GeneratorInterface
 
     /**
      * 获取路由的参数，三部分
-     * @param RouteInterface $route
+     * @param Route $route
      * @param $parameters
      * @return array
      */
-    public function getParameters(RouteInterface $route, $parameters)
+    public function getParameters(Route $route, $parameters)
     {
         return array_replace(
             $route->getDefaults(),
@@ -112,10 +111,10 @@ class Generator implements GeneratorInterface
 
     /**
      * 获取route的scheme和port
-     * @param RouteInterface $route
+     * @param Route $route
      * @return array
      */
-    protected function getRouteSchemeAndPort(RouteInterface $route)
+    protected function getRouteSchemeAndPort(Route $route)
     {
         $scheme = $this->context->getScheme();
         $requiredSchemes = $route->getSchemes();
@@ -134,11 +133,11 @@ class Generator implements GeneratorInterface
 
     /**
      * 获取route的host
-     * @param RouteInterface $route
+     * @param Route $route
      * @param array $parameters
      * @return string
      */
-    protected function getRouteHost(RouteInterface $route, $parameters)
+    protected function getRouteHost(Route $route, $parameters)
     {
         // 如果route没有主机域名限制则直接使用环境中主机
         $requireHost = $route->getHost();
@@ -151,11 +150,11 @@ class Generator implements GeneratorInterface
 
     /**
      * 获取route的pathinfo部分
-     * @param RouteInterface $route
+     * @param Route $route
      * @param array $parameters
      * @return string
      */
-    protected function getRoutePath(RouteInterface $route, $parameters)
+    protected function getRoutePath(Route $route, $parameters)
     {
         return $this->formatRouteHostOrPath($route->getPath(), $parameters, $route->getRequirements());
     }

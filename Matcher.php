@@ -8,7 +8,7 @@ namespace Slince\Routing;
 use Slince\Routing\Exception\RouteNotFoundException;
 use Slince\Routing\Exception\MethodNotAllowedException;
 
-class Matcher implements MatcherInterface
+class Matcher
 {
 
     /**
@@ -26,7 +26,7 @@ class Matcher implements MatcherInterface
      * 查找匹配的route
      * @param string $path
      * @param RouteCollection $routes
-     * @return RouteInterface
+     * @return Route
      */
     public function match($path, RouteCollection $routes)
     {
@@ -62,7 +62,7 @@ class Matcher implements MatcherInterface
      * @param RouteCollection $routes
      * @throws MethodNotAllowedException
      * @throws RouteNotFoundException
-     * @return RouteInterface
+     * @return Route
      */
     protected function findRoute($path, RouteCollection $routes)
     {
@@ -88,7 +88,7 @@ class Matcher implements MatcherInterface
      * @param string $path
      * @param RouteCollection $routes
      * @throws RouteNotFoundException
-     * @return RouteInterface
+     * @return Route
      */
     protected function findRouteWithoutRequestContext($path, RouteCollection $routes)
     {
@@ -102,10 +102,10 @@ class Matcher implements MatcherInterface
 
     /**
      * 匹配host
-     * @param RouteInterface $route
+     * @param Route $route
      * @return boolean
      */
-    protected function matchHost(RouteInterface $route)
+    protected function matchHost(Route $route)
     {
         if (empty($route->getHost())) {
             return true;
@@ -120,10 +120,10 @@ class Matcher implements MatcherInterface
 
     /**
      * 匹配method
-     * @param RouteInterface $route
+     * @param Route $route
      * @return boolean
      */
-    protected function matchMethod(RouteInterface $route)
+    protected function matchMethod(Route $route)
     {
         if (empty($route->getMethods())) {
             return true;
@@ -133,10 +133,10 @@ class Matcher implements MatcherInterface
 
     /**
      * 匹配scheme
-     * @param RouteInterface $route
+     * @param Route $route
      * @return boolean
      */
-    protected function matchSchema(RouteInterface $route)
+    protected function matchSchema(Route $route)
     {
         //没有scheme直接忽略
         if (empty($route->getSchemes())) {
@@ -148,10 +148,10 @@ class Matcher implements MatcherInterface
     /**
      * 匹配path
      * @param string $path
-     * @param RouteInterface $route
+     * @param Route $route
      * @return boolean
      */
-    protected function matchPath($path, RouteInterface $route)
+    protected function matchPath($path, Route $route)
     {
         //如果没有path则直接忽略
         if (empty($route->getPath())) {
@@ -167,10 +167,10 @@ class Matcher implements MatcherInterface
 
     /**
      * 处理路由参数
-     * @param RouteInterface $route
+     * @param Route $route
      * @return array
      */
-    protected function getRouteParameters(RouteInterface $route)
+    protected function getRouteParameters(Route $route)
     {
         return array_replace($route->getDefaults(),
             $route->getParameter('_hostMatches', []),

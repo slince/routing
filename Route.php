@@ -158,7 +158,9 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Sets the route path
+     * @param string $path
+     * @return $this
      */
     public function setPath($path)
     {
@@ -167,7 +169,8 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Gets the route path
+     * @return string path
      */
     public function getPath()
     {
@@ -175,7 +178,8 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Gets the path regex
+     * @return string
      */
     public function getPathRegex()
     {
@@ -183,8 +187,8 @@ class Route implements RouteInterface
     }
 
     /**
-     * 设置action
-     * @param $action
+     * Sets the action for the route
+     * @param mixed $action
      * @return $this
      */
     public function setAction($action)
@@ -194,7 +198,7 @@ class Route implements RouteInterface
     }
 
     /**
-     * 获取action
+     * Gets the action
      * @return mixed
      */
     public function getAction()
@@ -203,7 +207,7 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     *  Gets the defaults
      */
     public function getDefaults()
     {
@@ -211,7 +215,9 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Sets the defaults
+     * @param array $defaults
+     * @return $this
      */
     public function setDefaults(array $defaults)
     {
@@ -220,8 +226,8 @@ class Route implements RouteInterface
     }
 
     /**
-     * 获取默认参数
-     * @param $name
+     * Gets the default option value by its name
+     * @param string $name
      * @return mixed|null
      */
     public function getDefault($name)
@@ -230,8 +236,8 @@ class Route implements RouteInterface
     }
 
     /**
-     * 检查是否有默认参数
-     * @param $name
+     * Checks whether the route has the default option
+     * @param string $name
      * @return bool
      */
     public function hasDefault($name)
@@ -240,7 +246,10 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Sets the route parameters
+     * @param string $name
+     * @param mixed $parameter
+     * @return $this
      */
     public function setParameter($name, $parameter)
     {
@@ -249,7 +258,10 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Gets the route parameters
+     * @param string $name
+     * @param string $default
+     * @return mixed
      */
     public function getParameter($name, $default = null)
     {
@@ -257,7 +269,9 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Checks whether the parameter exists
+     * @param string $name
+     * @return mixed
      */
     public function hasParameter($name)
     {
@@ -265,7 +279,9 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Sets all parameters
+     * @param array $parameters
+     * @return $this
      */
     public function setParameters(array $parameters)
     {
@@ -274,7 +290,8 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Gets all parameters
+     * @return array
      */
     public function getParameters()
     {
@@ -282,7 +299,9 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Sets the requirements of the route
+     * @param array $requirements
+     * @return $this
      */
     public function setRequirements(array $requirements)
     {
@@ -291,7 +310,10 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Sets a requirement by specified name and value
+     * @param string $name
+     * @param string $requirement
+     * @return $this
      */
     public function setRequirement($name, $requirement)
     {
@@ -300,7 +322,9 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Add the requirements of the route (not replace)
+     * @param array $requirements
+     * @return $this
      */
     public function addRequirements(array $requirements)
     {
@@ -309,7 +333,8 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Gets all requirements
+     * @return array
      */
     public function getRequirements()
     {
@@ -317,7 +342,10 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Gets a requirement by its name
+     * @param string $name
+     * @param string $default
+     * @return string|null
      */
     public function getRequirement($name, $default = null)
     {
@@ -325,7 +353,9 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Sets the route schemes
+     * @param array $schemes
+     * @return $this
      */
     public function setSchemes(array $schemes)
     {
@@ -334,7 +364,8 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Gets all schemes
+     * @return array
      */
     public function getSchemes()
     {
@@ -342,7 +373,9 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Sets the route request methods
+     * @param array $methods
+     * @return $this
      */
     public function setMethods(array $methods)
     {
@@ -351,7 +384,8 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Gets all request methods that the route supports
+     * @return array
      */
     public function getMethods()
     {
@@ -359,7 +393,9 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Set the route host
+     * @param string $host
+     * @return $this
      */
     public function setHost($host)
     {
@@ -368,7 +404,8 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Gets the host
+     * @return string
      */
     public function getHost()
     {
@@ -376,7 +413,8 @@ class Route implements RouteInterface
     }
 
     /**
-     * {@inheritdoc}
+     * Gets the route host regex
+     * @return string
      */
     public function getHostRegex()
     {
@@ -393,11 +431,12 @@ class Route implements RouteInterface
 
     /**
      * Complies the route
+     * @param boolean $reCompile
      * @return Route
      */
-    public function compile($recompile = false)
+    public function compile($reCompile = false)
     {
-        if (!$this->isCompiled || $recompile) {
+        if (!$this->isCompiled || $reCompile) {
             $this->hostRegex = $this->parseToRegex($this->getHost());
             $this->pathRegex = $this->parseToRegex($this->getPath());
             $this->isCompiled = true;

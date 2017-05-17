@@ -83,8 +83,8 @@ class RouteBuilder
     public function get($path, $arguments)
     {
         return $this->add($path, $arguments)->setMethods([
-            HttpMethod::GET,
-            HttpMethod::HEAD
+            Route::GET,
+            Route::HEAD
         ]);
     }
 
@@ -97,7 +97,7 @@ class RouteBuilder
     public function post($path, $arguments)
     {
         return $this->add($path, $arguments)->setMethods([
-            HttpMethod::POST
+            Route::POST
         ]);
     }
 
@@ -110,7 +110,7 @@ class RouteBuilder
     public function put($path, $arguments)
     {
         return $this->add($path, $arguments)->setMethods([
-            HttpMethod::PUT
+            Route::PUT
         ]);
     }
 
@@ -123,7 +123,7 @@ class RouteBuilder
     public function patch($path, $arguments)
     {
         return $this->add($path, $arguments)->setMethods([
-            HttpMethod::PATCH
+            Route::PATCH
         ]);
     }
 
@@ -136,7 +136,7 @@ class RouteBuilder
     public function delete($path, $arguments)
     {
         return $this->add($path, $arguments)->setMethods([
-            HttpMethod::DELETE
+            Route::DELETE
         ]);
     }
 
