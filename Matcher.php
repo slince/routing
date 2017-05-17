@@ -10,7 +10,6 @@ use Slince\Routing\Exception\MethodNotAllowedException;
 
 class Matcher
 {
-
     /**
      * request context
      * @var RequestContext
@@ -23,7 +22,7 @@ class Matcher
     }
 
     /**
-     * 查找匹配的route
+     * Find the route that match the given path from the routes
      * @param string $path
      * @param RouteCollection $routes
      * @return Route
@@ -39,7 +38,7 @@ class Matcher
     }
 
     /**
-     * 设置上下文
+     * Set the request context
      * @param RequestContext $context
      */
     public function setContext(RequestContext $context)
@@ -48,7 +47,7 @@ class Matcher
     }
 
     /**
-     * 获取上下文
+     * Gets the request context
      * @return RequestContext $context
      */
     public function getContext()
@@ -57,7 +56,6 @@ class Matcher
     }
 
     /**
-     * 找出匹配path的route
      * @param string $path
      * @param RouteCollection $routes
      * @throws MethodNotAllowedException
@@ -66,25 +64,23 @@ class Matcher
      */
     protected function findRoute($path, RouteCollection $routes)
     {
-        $requireMethods = [];
-        // 查找符合条件的route
+        $requiredMethods = [];
         foreach ($routes as $route) {
             if ($this->matchSchema($route) && $this->matchHost($route) && $this->matchPath($path, $route)) {
                 if ($this->matchMethod($route)) {
                     return $route;
                 } else {
-                    $requireMethods += $route->getMethods();
+                    $requiredMethods += $route->getMethods();
                 }
             }
         }
-        if (!empty($requireMethods)) {
-            throw new MethodNotAllowedException($requireMethods);
+        if (!empty($requiredMethods)) {
+            throw new MethodNotAllowedException($requiredMethods);
         }
         throw new RouteNotFoundException();
     }
 
     /**
-     * 找出匹配path的route，不考虑request上下文
      * @param string $path
      * @param RouteCollection $routes
      * @throws RouteNotFoundException
@@ -101,7 +97,7 @@ class Matcher
     }
 
     /**
-     * 匹配host
+     * Checks whether the route matches the current request host
      * @param Route $route
      * @return boolean
      */
@@ -119,44 +115,39 @@ class Matcher
     }
 
     /**
-     * 匹配method
+     * Checks whether the route matches the current request method
      * @param Route $route
      * @return boolean
      */
     protected function matchMethod(Route $route)
     {
-        if (empty($route->getMethods())) {
+        if (!$route->getMethods()) {
             return true;
         }
         return in_array(strtolower($this->context->getMethod()), $route->getMethods());
     }
 
     /**
-     * 匹配scheme
+     * Checks whether the route matches the scheme
      * @param Route $route
      * @return boolean
      */
     protected function matchSchema(Route $route)
     {
-        //没有scheme直接忽略
-        if (empty($route->getSchemes())) {
+        if (!$route->getSchemes()) {
             return true;
         }
         return in_array($this->context->getScheme(), $route->getSchemes());
     }
 
     /**
-     * 匹配path
+     * Checks whether the route matches the given path
      * @param string $path
      * @param Route $route
      * @return boolean
      */
     protected function matchPath($path, Route $route)
     {
-        //如果没有path则直接忽略
-        if (empty($route->getPath())) {
-            return true;
-        }
         if (preg_match($route->compile()->getPathRegex(), rawurldecode($path), $matches)) {
             $routeParameters = array_intersect_key($matches, array_flip($route->getVariables()));
             $route->setParameter('_pathMatches', $routeParameters);

@@ -5,7 +5,7 @@
  */
 namespace Slince\Routing;
 
-class Route implements RouteInterface
+class Route
 {
     /**
      * head

@@ -77,36 +77,21 @@ class Generator
      */
     public function generate(Route $route, $parameters = [], $absolute = true)
     {
-        $parameters = $this->getParameters($route, $parameters);
-        $uri = '';
+        $computedParameters = array_replace($route->getDefaults(), $parameters);
+        $urlSlugs = [];
         //generate absolute url
         if ($absolute) {
-            list ($scheme, $port) = $this->getRouteSchemeAndPort($route);
-            $host = $this->getRouteHost($route, $parameters);
-            $uri .= "{$scheme}://{$host}{$port}";
+            list($scheme, $port) = $this->getRouteSchemeAndPort($route);
+            $host = $this->getRouteHost($route, $computedParameters);
+            $urlSlugs[] = "{$scheme}://{$host}{$port}";
         }
-        $uri .= $this->getRoutePath($route, $parameters);
-        // 提供的多出的数据作为query string
+        $urlSlugs[] = $this->getRoutePath($route, $parameters);
+        // Build query string
         $extraParameters = array_diff_key($parameters, array_flip($this->routeVariables));
         if ($extraParameters && $query = http_build_query($extraParameters, '', '&')) {
-            $uri .= '?' . $query;
+            $urlSlugs[] =  '?' . $query;
         }
-        return $uri;
-    }
-
-    /**
-     * 获取路由的参数，三部分
-     * @param Route $route
-     * @param $parameters
-     * @return array
-     */
-    public function getParameters(Route $route, $parameters)
-    {
-        return array_replace(
-            $route->getDefaults(),
-            $this->context->getParameters(),
-            $parameters
-        );
+        return implode('', $urlSlugs);
     }
 
     /**
@@ -118,8 +103,7 @@ class Generator
     {
         $scheme = $this->context->getScheme();
         $requiredSchemes = $route->getSchemes();
-        //如果当前请求协议不在route要求的协议内则使用第一个要求的协议
-        if (!empty($requiredSchemes) && !in_array($scheme, $requiredSchemes)) {
+        if ($requiredSchemes && !in_array($scheme, $requiredSchemes)) {
             $scheme = reset($requiredSchemes);
         }
         $port = '';
@@ -132,53 +116,49 @@ class Generator
     }
 
     /**
-     * 获取route的host
+     * Gets the route host
      * @param Route $route
      * @param array $parameters
      * @return string
      */
     protected function getRouteHost(Route $route, $parameters)
     {
-        // 如果route没有主机域名限制则直接使用环境中主机
-        $requireHost = $route->getHost();
-        if (empty($requireHost)) {
+        //If the route has no required host, returns the current host
+        if (!$route->getHost()) {
             return $this->context->getHost();
         }
-        // 有限制则根据route的host限制生成域名
-        return $this->formatRouteHostOrPath($requireHost, $parameters, $route->getRequirements());
+        return $this->replaceRouteNamedParameters($route->getHost(), $parameters, $route->getRequirements());
     }
 
     /**
-     * 获取route的pathinfo部分
+     * Gets the route path
      * @param Route $route
      * @param array $parameters
      * @return string
      */
     protected function getRoutePath(Route $route, $parameters)
     {
-        return $this->formatRouteHostOrPath($route->getPath(), $parameters, $route->getRequirements());
+        return $this->replaceRouteNamedParameters($route->getPath(), $parameters, $route->getRequirements());
     }
 
     /**
-     * 格式化route的host和pathinfo部分
+     * Replaces the named parameters of the route path or host
      * @param string $path
      * @param array $parameters
      * @param array $requirements
      * @throws InvalidArgumentException
      * @return string
      */
-    protected function formatRouteHostOrPath($path, $parameters, $requirements = [])
+    protected function replaceRouteNamedParameters($path, $parameters, $requirements = [])
     {
         return preg_replace_callback('#\{([a-zA-Z0-9_,]*)\}#', function ($matches) use ($parameters, $requirements) {
-            //为了避免重新编译route得到variable此处代为获取route variable
             $this->routeVariables[] = $matches[1];
-            //严格模式必须提供参数
+            //The named parameter value must be provided if the strict mode
             if (!isset($parameters[$matches[1]]) && $this->strictRequirements) {
                 throw new InvalidArgumentException(sprintf('Missing parameter "%s"', $matches[1]));
             }
             $supportVariable = isset($parameters[$matches[1]]) ? $parameters[$matches[1]] : '';
             if ($this->strictRequirements) {
-                //如果不匹配要求的正则则抛出异常
                 if (isset($requirements[$matches[1]]) && !preg_match('#^' . $requirements[$matches[1]] . '$#',
                         $supportVariable)
                 ) {
