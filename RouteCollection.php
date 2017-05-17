@@ -8,19 +8,19 @@ namespace Slince\Routing;
 class RouteCollection implements \Countable, \IteratorAggregate
 {
     /**
-     * route集合
+     * Array of routes
      * @var array
      */
     protected $routes = [];
 
     /**
-     * name集合
+     * Array of route names
      * @var array
      */
     protected $names = [];
 
     /**
-     * action集合
+     * Array of route actions
      * @var array
      */
     protected $actions = [];
