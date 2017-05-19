@@ -377,6 +377,17 @@ class Route
     }
 
     /**
+     * Add the defaults of the route (not replace)
+     * @param array $defaults
+     * @return $this
+     */
+    public function addDefaults(array $defaults)
+    {
+        $this->defaults += $defaults;
+        return $this;
+    }
+
+    /**
      * Gets the default option value by its name
      * @param string $name
      * @return mixed|null

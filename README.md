@@ -17,34 +17,14 @@ use Slince\Routing\RouteBuilder;
 use Slince\Routing\Exception\MethodNotAllowedException;
 use Slince\Routing\Exception\RouteNotFoundException;
 
-//Create Router
-$router = RouterFactory::create();
-//添加route
-$routes = $router->RouteBuilder();
-$routes->http('/users', 'UsersController@index');
-$routes->http('/users/{id}', 'UsersController@show')->setRequirements([
-    'id' => '\d+'
-]);
 
-//匹配请求方式
-$routes->post('/articles', 'ArticlesController@add');
-$routes->delete('/articles/1', 'ArticlesController@delete');
-$routes->get('/articles/1', 'ArticlesController@show');
-$routes->post('/articles/1', 'ArticlesController@update');
-//匹配http相关需要提供RequestContext
-$router->setContext(RequestContext::create());
-
-
-//开始匹配路径
-try {
-   $route = $router->match('/users/1256');
-   $action = $route->getAction();
-   print_r($route->getParameters());
-} catch (MethodNotAllowedException $e) {
-    //403，访问拒绝
-} catch (RouteNotFoundException $e) {
-    //404
-}
+$routes = new RouteCollection();
+$routes->create('/home', 'Pages::home')
+    ->name('homepage'):
+    
+$routes->group(['prefix'=>'/admin'], function(){
+    
+});
 ```
 
 

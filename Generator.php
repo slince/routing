@@ -107,10 +107,10 @@ class Generator
             $scheme = reset($requiredSchemes);
         }
         $port = '';
-        if (strcasecmp($scheme, 'http') == 0 && $this->context->getHttpPort() != 80) {
-            $port = ':' . $this->context->getHttpPort();
-        } elseif (strcasecmp($scheme, 'https') == 0 && $this->context->getHttpsPort() != 443) {
-            $port = ':' . $this->context->getHttpsPort();
+        if (strcasecmp($scheme, 'http') == 0 && $this->context->getPort() != 80) {
+            $port = ':' . $this->context->getPort();
+        } elseif (strcasecmp($scheme, 'https') == 0 && $this->context->getPort() != 443) {
+            $port = ':' . $this->context->getPort();
         }
         return [$scheme, $port];
     }

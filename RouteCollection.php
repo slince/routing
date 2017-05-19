@@ -7,34 +7,37 @@ namespace Slince\Routing;
 
 class RouteCollection implements \Countable, \IteratorAggregate
 {
+    protected $options;
+
     /**
      * Array of routes
-     * @var array
+     * @var Route[]
      */
     protected $routes = [];
 
     /**
      * Array of route names
-     * @var array
+     * @var Route[]
      */
     protected $names = [];
 
     /**
      * Array of route actions
-     * @var array
+     * @var Route[]
      */
     protected $actions = [];
 
-    public function __construct(array $routes = [])
+    public function __construct(array $routes = [], array $options = [])
     {
         $this->routes = $routes;
+        $this->options = $options;
     }
 
     /**
      * Add a route to the collection
      * @param Route $route
      */
-    public function add(Route $route)
+    public function addRoute(Route $route)
     {
         if ($route->getName()) {
             $this->names[$route->getName()] = $route;
@@ -51,7 +54,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
      * @param string $name
      * @return Route|null
      */
-    public function getByName($name)
+    public function getRouteByName($name)
     {
         return isset($this->names[$name]) ? $this->names[$name] : null;
     }
@@ -61,7 +64,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
      * @param string $action
      * @return Route|null
      */
-    public function getByAction($action)
+    public function getRouteByAction($action)
     {
         return isset($this->actions[$action]) ? $this->actions[$action] : null;
     }
@@ -70,14 +73,66 @@ class RouteCollection implements \Countable, \IteratorAggregate
      * Gets all named routes
      * @return Route[]
      */
-    public function getNamedRoute()
+    public function getNamedRoutes()
     {
         return $this->names;
     }
 
     /**
-     * Gets all routes
      * @return array
+     */
+    public function getOptions()
+    {
+        return $this->options;
+    }
+
+    public function getOption($name, $default = null)
+    {
+        return isset($this->options[$name]) ? $this->options[$name] : $default;
+    }
+
+
+    /**
+     * @param array $options
+     */
+    public function setOptions($options)
+    {
+        $this->options = $options;
+    }
+
+
+    public function group($options, \Closure $callback)
+    {
+        $collection = new RouteCollection([], $options);
+        call_user_func($callback, $collection);
+        $this->mergeSubCollection($collection);
+    }
+
+    public function mergeSubCollection(RouteCollection $collection)
+    {
+        $prefix = $collection->getOption('prefix');
+        $methods = $collection->getOption('methods');
+        $schemes = $collection->getOption('schemes');
+        $host = $collection->getOption('host');
+        $requirements = $collection->getOption('requirements');
+        $defaults = $collection->getOption('defaults');
+        foreach ($collection->all() as $route) {
+            if ($prefix) {
+                $path = '/' . trim($prefix, '/') . '/' . trim($route->getPath(), '/');
+                $route->setPath($path);
+            }
+            $methods && $route->setMethods($methods);
+            $schemes && $route->setSchemes($schemes);
+            $host && $route->setHost($host);
+            $requirements && $route->addRequirements($requirements);
+            $defaults && $route->addDefaults($defaults);
+            $this->addRoute($route);
+        }
+    }
+
+    /**
+     * Gets all routes
+     * @return Route[]
      */
     public function all()
     {
