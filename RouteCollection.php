@@ -110,22 +110,19 @@ class RouteCollection implements \Countable, \IteratorAggregate
 
     public function mergeSubCollection(RouteCollection $collection)
     {
-        $prefix = $collection->getOption('prefix');
-        $methods = $collection->getOption('methods');
-        $schemes = $collection->getOption('schemes');
-        $host = $collection->getOption('host');
-        $requirements = $collection->getOption('requirements');
-        $defaults = $collection->getOption('defaults');
         foreach ($collection->all() as $route) {
-            if ($prefix) {
+            if ($prefix = $this->getOption('prefix')) {
                 $path = '/' . trim($prefix, '/') . '/' . trim($route->getPath(), '/');
                 $route->setPath($path);
             }
-            $methods && $route->setMethods($methods);
-            $schemes && $route->setSchemes($schemes);
-            $host && $route->setHost($host);
-            $requirements && $route->addRequirements($requirements);
-            $defaults && $route->addDefaults($defaults);
+            $route->addRequirements($this->getOption('requirements', []));
+            $route->addDefaults($this->getOption('defaults', []));
+            if (!$route->getHost()) {
+                $route->setHost($this->getOption('host'));
+            }
+            if (!$route->getSchemes()) {
+                $route->setSchemes($this->getOption('schemes', []));
+            }
             $this->addRoute($route);
         }
     }
