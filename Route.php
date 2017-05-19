@@ -68,28 +68,22 @@ class Route
     const CONNECT = 'CONNECT';
 
     /**
-     * path
+     * The route name
+     * @var string
+     */
+    protected $name;
+
+    /**
+     * Path
      * @var string
      */
     protected $path;
 
     /**
-     * action
+     * Action
      * @var mixed
      */
     protected $action;
-
-    /**
-     * Defaults
-     * @var array
-     */
-    protected $defaults;
-
-    /**
-     * requirements
-     * @var array
-     */
-    protected $requirements;
 
     /**
      * schemes
@@ -110,10 +104,28 @@ class Route
     protected $methods;
 
     /**
+     * requirements
+     * @var array
+     */
+    protected $requirements;
+
+    /**
+     * Defaults
+     * @var array
+     */
+    protected $defaults;
+
+    /**
      * parameters
      * @var array
      */
     protected $parameters;
+
+    /**
+     * The computed parameters
+     * @var array
+     */
+    protected $computedParameters;
 
     /**
      * whether the route has been compiled
@@ -155,6 +167,22 @@ class Route
         $this->setHost($host);
         $this->setSchemes($schemes);
         $this->setMethods($methods);
+    }
+
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
     /**
@@ -204,6 +232,129 @@ class Route
     public function getAction()
     {
         return $this->action;
+    }
+
+    /**
+     * Sets the route schemes
+     * @param array $schemes
+     * @return $this
+     */
+    public function setSchemes(array $schemes)
+    {
+        $this->schemes = $schemes;
+        return $this;
+    }
+
+    /**
+     * Gets all schemes
+     * @return array
+     */
+    public function getSchemes()
+    {
+        return $this->schemes;
+    }
+
+    /**
+     * Sets the route request methods
+     * @param array $methods
+     * @return $this
+     */
+    public function setMethods(array $methods)
+    {
+        $this->methods = array_map('strtolower', $methods);
+        return $this;
+    }
+
+    /**
+     * Gets all request methods that the route supports
+     * @return array
+     */
+    public function getMethods()
+    {
+        return $this->methods;
+    }
+
+    /**
+     * Set the route host
+     * @param string $host
+     * @return $this
+     */
+    public function setHost($host)
+    {
+        $this->host = $host;
+        return $this;
+    }
+
+    /**
+     * Gets the host
+     * @return string
+     */
+    public function getHost()
+    {
+        return $this->host;
+    }
+
+    /**
+     * Gets the route host regex
+     * @return string
+     */
+    public function getHostRegex()
+    {
+        return $this->hostRegex;
+    }
+
+    /**
+     * Sets the requirements of the route
+     * @param array $requirements
+     * @return $this
+     */
+    public function setRequirements(array $requirements)
+    {
+        $this->requirements = $requirements;
+        return $this;
+    }
+
+    /**
+     * Sets a requirement by specified name and value
+     * @param string $name
+     * @param string $requirement
+     * @return $this
+     */
+    public function setRequirement($name, $requirement)
+    {
+        $this->requirements[$name] = $requirement;
+        return $this;
+    }
+
+    /**
+     * Add the requirements of the route (not replace)
+     * @param array $requirements
+     * @return $this
+     */
+    public function addRequirements(array $requirements)
+    {
+        $this->requirements += $requirements;
+        return $this;
+    }
+
+    /**
+     * Gets all requirements
+     * @return array
+     */
+    public function getRequirements()
+    {
+        return $this->requirements;
+    }
+
+    /**
+     * Gets a requirement by its name
+     * @param string $name
+     * @param string $default
+     * @return string|null
+     */
+    public function getRequirement($name, $default = null)
+    {
+        return isset($this->requirements[$name]) ? $this->requirements[$name] : $default;
     }
 
     /**
@@ -299,126 +450,19 @@ class Route
     }
 
     /**
-     * Sets the requirements of the route
-     * @param array $requirements
-     * @return $this
+     * @param array $computedParameters
      */
-    public function setRequirements(array $requirements)
+    public function setComputedParameters($computedParameters)
     {
-        $this->requirements = $requirements;
-        return $this;
+        $this->computedParameters = $computedParameters;
     }
 
     /**
-     * Sets a requirement by specified name and value
-     * @param string $name
-     * @param string $requirement
-     * @return $this
-     */
-    public function setRequirement($name, $requirement)
-    {
-        $this->requirements[$name] = $requirement;
-        return $this;
-    }
-
-    /**
-     * Add the requirements of the route (not replace)
-     * @param array $requirements
-     * @return $this
-     */
-    public function addRequirements(array $requirements)
-    {
-        $this->requirements += $requirements;
-        return $this;
-    }
-
-    /**
-     * Gets all requirements
      * @return array
      */
-    public function getRequirements()
+    public function getComputedParameters()
     {
-        return $this->requirements;
-    }
-
-    /**
-     * Gets a requirement by its name
-     * @param string $name
-     * @param string $default
-     * @return string|null
-     */
-    public function getRequirement($name, $default = null)
-    {
-        return isset($this->requirements[$name]) ? $this->requirements[$name] : $default;
-    }
-
-    /**
-     * Sets the route schemes
-     * @param array $schemes
-     * @return $this
-     */
-    public function setSchemes(array $schemes)
-    {
-        $this->schemes = $schemes;
-        return $this;
-    }
-
-    /**
-     * Gets all schemes
-     * @return array
-     */
-    public function getSchemes()
-    {
-        return $this->schemes;
-    }
-
-    /**
-     * Sets the route request methods
-     * @param array $methods
-     * @return $this
-     */
-    public function setMethods(array $methods)
-    {
-        $this->methods = array_map('strtolower', $methods);
-        return $this;
-    }
-
-    /**
-     * Gets all request methods that the route supports
-     * @return array
-     */
-    public function getMethods()
-    {
-        return $this->methods;
-    }
-
-    /**
-     * Set the route host
-     * @param string $host
-     * @return $this
-     */
-    public function setHost($host)
-    {
-        $this->host = $host;
-        return $this;
-    }
-
-    /**
-     * Gets the host
-     * @return string
-     */
-    public function getHost()
-    {
-        return $this->host;
-    }
-
-    /**
-     * Gets the route host regex
-     * @return string
-     */
-    public function getHostRegex()
-    {
-        return $this->hostRegex;
+        return $this->computedParameters;
     }
 
     /**

@@ -31,14 +31,13 @@ class RouteCollection implements \Countable, \IteratorAggregate
     }
 
     /**
-     * 添加路由
-     * @param RouteInterface $route
-     * @param string|null $name
+     * Add a route to the collection
+     * @param Route $route
      */
-    public function add(RouteInterface $route, $name = null)
+    public function add(Route $route)
     {
-        if (!is_null($name)) {
-            $this->names[$name] = $route;
+        if ($route->getName()) {
+            $this->names[$route->getName()] = $route;
         }
         $action = $route->getAction();
         if (is_scalar($action)) {
@@ -48,7 +47,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
     }
 
     /**
-     * 根据name获取route
+     * Finds the route by the given name
      * @param string $name
      * @return Route|null
      */
@@ -58,7 +57,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
     }
 
     /**
-     * 根据action获取route
+     * Finds the route by the given action
      * @param string $action
      * @return Route|null
      */
@@ -68,25 +67,16 @@ class RouteCollection implements \Countable, \IteratorAggregate
     }
 
     /**
-     * 获取全部的命名路由
-     * @return array
+     * Gets all named routes
+     * @return Route[]
      */
-    public function getNameRoute()
+    public function getNamedRoute()
     {
         return $this->names;
     }
 
     /**
-     * 获取全部action路由
-     * @return array
-     */
-    public function getActionRoutes()
-    {
-        return $this->actions;
-    }
-
-    /**
-     * 获取所有的路由
+     * Gets all routes
      * @return array
      */
     public function all()
@@ -95,8 +85,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
     }
 
     /**
-     * 获取路由数量
-     * @return int
+     * {@inheritdoc}
      */
     public function count()
     {
@@ -104,20 +93,10 @@ class RouteCollection implements \Countable, \IteratorAggregate
     }
 
     /**
-     * 实现接口
-     * @return \ArrayIterator
+     * {@inheritdoc}
      */
     public function getIterator()
     {
         return new \ArrayIterator($this->routes);
-    }
-
-    /**
-     * 实现RouteBuilderTrait方法
-     * @return $this
-     */
-    public function getRoutes()
-    {
-        return $this;
     }
 }

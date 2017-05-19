@@ -32,8 +32,8 @@ class Matcher
         $path = '/' . ltrim($path, '/');
         $route = is_null($this->context) ? $this->findRouteWithoutRequestContext($path, $routes)
             : $this->findRoute($path, $routes);
-        $routeParameters = $this->getRouteParameters($route);
-        $route->setParameters($routeParameters);
+        $computedParameters = $this->computeRouteParameters($route);
+        $route->setComputedParameters($computedParameters);
         return $route;
     }
 
@@ -161,7 +161,7 @@ class Matcher
      * @param Route $route
      * @return array
      */
-    protected function getRouteParameters(Route $route)
+    protected function computeRouteParameters(Route $route)
     {
         return array_replace($route->getDefaults(),
             $route->getParameter('_hostMatches', []),
