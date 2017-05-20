@@ -3,6 +3,7 @@ namespace Slince\Routing\Tests;
 
 use PHPUnit\Framework\TestCase;
 use Slince\Routing\Exception\MethodNotAllowedException;
+use Slince\Routing\Exception\RouteNotFoundException;
 use Slince\Routing\Matcher;
 use Slince\Routing\RouteCollection;
 use Slince\Routing\Route;
@@ -19,110 +20,86 @@ class MatcherTest extends TestCase
         $this->assertTrue ($route === $matcher->match('/foo'));
     }
 
-    public function testMethodNotAllowed()
+    public function testMatch()
     {
+        // test the patterns are matched and parameters are returned
         $routes = new RouteCollection();
-        $routes->post('/foo', 'foo');
+        $route = $routes->http('/foo/{bar}', 'action1');
         $matcher = new Matcher($routes);
         try {
-            $matcher->match(new ServerRequest([], [], '/foo'));
+            $matcher->match('/no-match');
             $this->fail();
-        } catch (MethodNotAllowedException $e) {
-            $this->assertEquals(array('POST'), $e->getAllowedMethods());
+        } catch (RouteNotFoundException $e) {
         }
+        $this->assertTrue ($route === $matcher->match('/foo/baz'));
+        $this->assertEquals(['foo' => 'baz'], $route->getComputedParameters());
+
+        // test defaults
+        $routes = new RouteCollection();
+        $routes->http('/foo/{bar}', 'action1')
+            ->setDefaults(['def' => 'test']);
+        $matcher = new Matcher($routes);
+        $route = $matcher->match('/foo/baz');
+        $this->assertEquals(['bar' => 'baz', 'def' => 'test'], $route->getComputedParameters());
+
+        // test that route "method" is ignored if match simple path
+        $routes = new RouteCollection();
+        $route = $routes->http('/foo', 'action1')->setMethods(['GET', 'HEAD']);
+        $matcher = new Matcher($routes);
+        $this->assertTrue ($route === $matcher->match('/foo'));
+
+        //optional placeholder
+        $routes = new RouteCollection();
+        $route = $routes->http('/foo/{bar}', 'action1')
+            ->setDefaults(['bar' => 'baz']);
+        $this->assertTrue ($route === $matcher->match('/foo'));
     }
 
-    public function testHeadAllowedWhenRequirementContainsGet()
+    public function testHeadAllowedWhenMethodGet()
     {
         $routes = new RouteCollection();
         $route = $routes->get('/foo', 'foo');
         $matcher = new Matcher($routes);
-        $this->assertTrue ($route === $matcher->match(new ServerRequest(['REQUEST'])));
+        $request = new ServerRequest(['HTTP_REQUEST_METHOD' => 'HEAD'], [], 'http://domain.com/foo');
+        $this->assertTrue ($route === $matcher->matchRequest($request));
     }
-    public function testMethodNotAllowedAggregatesAllowedMethods()
+
+    public function testMethodNotAllowedMethods()
     {
         $routes = new RouteCollection();
-        $routes->add('foo1', new Route('/foo', array(), array(), array(), '', array(), array('post')));
-        $routes->add('foo2', new Route('/foo', array(), array(), array(), '', array(), array('put', 'delete')));
-        $matcher = new UrlMatcher($routes, new RequestContext());
+        $routes->post('/foo', 'action1');
+        $routes->http('/foo', 'action2')->setMethods(['put', 'delete']);
+        $matcher = new Matcher($routes);
         try {
-            $matcher->match('/foo');
+            $request = new ServerRequest(['HTTP_REQUEST_METHOD' => 'HEAD'], [], 'http://domain.com/foo');
+            $matcher->matchRequest($request);
             $this->fail();
         } catch (MethodNotAllowedException $e) {
             $this->assertEquals(array('POST', 'PUT', 'DELETE'), $e->getAllowedMethods());
         }
     }
-    public function testMatch()
-    {
-        // test the patterns are matched and parameters are returned
-        $routesection = new RouteCollection();
-        $routesection->add('foo', new Route('/foo/{bar}'));
-        $matcher = new UrlMatcher($routesection, new RequestContext());
-        try {
-            $matcher->match('/no-match');
-            $this->fail();
-        } catch (ResourceNotFoundException $e) {
-        }
-        $this->assertEquals(array('_route' => 'foo', 'bar' => 'baz'), $matcher->match('/foo/baz'));
-        // test that defaults are merged
-        $routesection = new RouteCollection();
-        $routesection->add('foo', new Route('/foo/{bar}', array('def' => 'test')));
-        $matcher = new UrlMatcher($routesection, new RequestContext());
-        $this->assertEquals(array('_route' => 'foo', 'bar' => 'baz', 'def' => 'test'), $matcher->match('/foo/baz'));
-        // test that route "method" is ignored if no method is given in the context
-        $routesection = new RouteCollection();
-        $routesection->add('foo', new Route('/foo', array(), array(), array(), '', array(), array('get', 'head')));
-        $matcher = new UrlMatcher($routesection, new RequestContext());
-        $this->assertInternalType('array', $matcher->match('/foo'));
-        // route does not match with POST method context
-        $matcher = new UrlMatcher($routesection, new RequestContext('', 'post'));
-        try {
-            $matcher->match('/foo');
-            $this->fail();
-        } catch (MethodNotAllowedException $e) {
-        }
-        // route does match with GET or HEAD method context
-        $matcher = new UrlMatcher($routesection, new RequestContext());
-        $this->assertInternalType('array', $matcher->match('/foo'));
-        $matcher = new UrlMatcher($routesection, new RequestContext('', 'head'));
-        $this->assertInternalType('array', $matcher->match('/foo'));
-        // route with an optional variable as the first segment
-        $routesection = new RouteCollection();
-        $routesection->add('bar', new Route('/{bar}/foo', array('bar' => 'bar'), array('bar' => 'foo|bar')));
-        $matcher = new UrlMatcher($routesection, new RequestContext());
-        $this->assertEquals(array('_route' => 'bar', 'bar' => 'bar'), $matcher->match('/bar/foo'));
-        $this->assertEquals(array('_route' => 'bar', 'bar' => 'foo'), $matcher->match('/foo/foo'));
-        $routesection = new RouteCollection();
-        $routesection->add('bar', new Route('/{bar}', array('bar' => 'bar'), array('bar' => 'foo|bar')));
-        $matcher = new UrlMatcher($routesection, new RequestContext());
-        $this->assertEquals(array('_route' => 'bar', 'bar' => 'foo'), $matcher->match('/foo'));
-        $this->assertEquals(array('_route' => 'bar', 'bar' => 'bar'), $matcher->match('/'));
-        // route with only optional variables
-        $routesection = new RouteCollection();
-        $routesection->add('bar', new Route('/{foo}/{bar}', array('foo' => 'foo', 'bar' => 'bar'), array()));
-        $matcher = new UrlMatcher($routesection, new RequestContext());
-        $this->assertEquals(array('_route' => 'bar', 'foo' => 'foo', 'bar' => 'bar'), $matcher->match('/'));
-        $this->assertEquals(array('_route' => 'bar', 'foo' => 'a', 'bar' => 'bar'), $matcher->match('/a'));
-        $this->assertEquals(array('_route' => 'bar', 'foo' => 'a', 'bar' => 'b'), $matcher->match('/a/b'));
-    }
+
+
     public function testMatchWithPrefixes()
     {
-        $routesection = new RouteCollection();
-        $routesection->add('foo', new Route('/{foo}'));
-        $routesection->addPrefix('/b');
-        $routesection->addPrefix('/a');
-        $matcher = new UrlMatcher($routesection, new RequestContext());
-        $this->assertEquals(array('_route' => 'foo', 'foo' => 'foo'), $matcher->match('/a/b/foo'));
+        $routes = new RouteCollection();
+        $routes->group('foo', function(RouteCollection $routes){
+            $routes->get('/bar', 'action');
+        });
+        $matcher = new Matcher($routes);
+        $this->assertTrue($matcher->match('/foo/bar') === $routes->getByAction('action'));
     }
+
     public function testMatchWithDynamicPrefix()
     {
-        $routesection = new RouteCollection();
-        $routesection->add('foo', new Route('/{foo}'));
-        $routesection->addPrefix('/b');
-        $routesection->addPrefix('/{_locale}');
-        $matcher = new UrlMatcher($routesection, new RequestContext());
-        $this->assertEquals(array('_locale' => 'fr', '_route' => 'foo', 'foo' => 'foo'), $matcher->match('/fr/b/foo'));
+        $routes = new RouteCollection();
+        $routes->group('{locale}', function(RouteCollection $routes){
+            $routes->get('/bar', 'action');
+        });
+        $matcher = new Matcher($routes);
+        $this->assertEquals(['locale' => 'en'], $matcher->match('/en/foo')->getComputedParameters());
     }
+
     public function testMatchSpecialRouteName()
     {
         $routesection = new RouteCollection();

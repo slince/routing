@@ -389,10 +389,12 @@ class Route
      * Sets a default item
      * @param string $name
      * @param string $value
+     * @return $this
      */
     public function setDefault($name, $value)
     {
         $this->defaults[$name] = $value;
+        return $this;
     }
 
     /**
