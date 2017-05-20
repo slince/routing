@@ -7,6 +7,12 @@ namespace Slince\Routing;
 
 class RouteCollection implements \Countable, \IteratorAggregate
 {
+    use RouteBuilderTrait;
+
+    /**
+     * Array of collection options
+     * @var array
+     */
     protected $options;
 
     /**
@@ -37,7 +43,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
      * Add a route to the collection
      * @param Route $route
      */
-    public function addRoute(Route $route)
+    public function add(Route $route)
     {
         if ($route->getName()) {
             $this->names[$route->getName()] = $route;
@@ -54,7 +60,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
      * @param string $name
      * @return Route|null
      */
-    public function getRouteByName($name)
+    public function geByName($name)
     {
         return isset($this->names[$name]) ? $this->names[$name] : null;
     }
@@ -64,7 +70,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
      * @param string $action
      * @return Route|null
      */
-    public function getRouteByAction($action)
+    public function getByAction($action)
     {
         return isset($this->actions[$action]) ? $this->actions[$action] : null;
     }
@@ -79,6 +85,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
     }
 
     /**
+     * Gets all options
      * @return array
      */
     public function getOptions()
@@ -86,9 +93,14 @@ class RouteCollection implements \Countable, \IteratorAggregate
         return $this->options;
     }
 
-    public function getOption($name, $default = null)
+    /**
+     * Gets the collection option by its name
+     * @param string $name
+     * @return mixed|null
+     */
+    public function getOption($name)
     {
-        return isset($this->options[$name]) ? $this->options[$name] : $default;
+        return isset($this->options[$name]) ? $this->options[$name] : null;
     }
 
 
@@ -100,7 +112,11 @@ class RouteCollection implements \Countable, \IteratorAggregate
         $this->options = $options;
     }
 
-
+    /**
+     * Creates a sub collection routes
+     * @param $options
+     * @param \Closure $callback
+     */
     public function group($options, \Closure $callback)
     {
         $collection = new RouteCollection([], $options);
@@ -108,22 +124,38 @@ class RouteCollection implements \Countable, \IteratorAggregate
         $this->mergeSubCollection($collection);
     }
 
+    /**
+     * Merges routes from an route collection
+     * @param RouteCollection $collection
+     */
     public function mergeSubCollection(RouteCollection $collection)
     {
+        $extraParameters = array_diff_key($collection->getOptions(), [
+            'prefix' => null,
+            'host' => null,
+            'methods' => [],
+            'schemes' => [],
+            'requirements' => [],
+            'defaults' => []
+        ]);
         foreach ($collection->all() as $route) {
             if ($prefix = $this->getOption('prefix')) {
-                $path = '/' . trim($prefix, '/') . '/' . trim($route->getPath(), '/');
+                $path =  trim($prefix, '/') . '/' . trim($route->getPath(), '/');
                 $route->setPath($path);
             }
-            $route->addRequirements($this->getOption('requirements', []));
-            $route->addDefaults($this->getOption('defaults', []));
             if (!$route->getHost()) {
                 $route->setHost($this->getOption('host'));
             }
-            if (!$route->getSchemes()) {
-                $route->setSchemes($this->getOption('schemes', []));
+            if (!$route->getMethods()) {
+                $route->setMethods($this->getOption('methods'));
             }
-            $this->addRoute($route);
+            if (!$route->getSchemes()) {
+                $route->setSchemes($this->getOption('schemes') ?: []);
+            }
+            $route->addRequirements($this->getOption('requirements') ?: []);
+            $route->addDefaults($this->getOption('defaults') ?: []);
+            $route->addParameters($extraParameters);
+            $this->add($route);
         }
     }
 

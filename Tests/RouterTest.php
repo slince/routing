@@ -2,7 +2,7 @@
 namespace Slince\Routing\Tests;
 
 use Slince\Routing\Route;
-use Slince\Routing\RouteBuilder;
+use Slince\Routing\RouteBuilderTrait;
 use Slince\Routing\Router;
 use Slince\Routing\RouterFactory;
 use Slince\Routing\RequestContext;
@@ -40,14 +40,14 @@ class RouterTest extends \PHPUnit_Framework_TestCase
             ])->setHost('{subdomain}.domain.com')
             ->setDefaults(['subdomain' => 'm']);
         
-        $routeBuilder->prefix('user', function (RouteBuilder $routeBuilder) {
+        $routeBuilder->prefix('user', function (RouteBuilderTrait $routeBuilder) {
             $routeBuilder->http('/messages', 'MessagesController@index');
             $routeBuilder->http('/messages/{id}', 'MessagesController@show');
-            $routeBuilder->prefix('me', function (RouteBuilder $routeBuilder) {
+            $routeBuilder->prefix('me', function (RouteBuilderTrait $routeBuilder) {
                 $routeBuilder->http('/account', 'UsersController@me');
             });
         });
-        $routeBuilder->prefix('admin', function (RouteBuilder $routeBuilder) {
+        $routeBuilder->prefix('admin', function (RouteBuilderTrait $routeBuilder) {
             $routeBuilder->http('/dashboard/', 'HomeController@index');
         });
         $this->assertEquals('http://www.domain.com/users/100', $router->generateByName('home.dash', ['subdomain' => 'www', 'id' => 100], true));

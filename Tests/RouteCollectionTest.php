@@ -2,7 +2,7 @@
 namespace Slince\Routing\Tests;
 
 use Slince\Routing\Route;
-use Slince\Routing\RouteBuilder;
+use Slince\Routing\RouteBuilderTrait;
 use Slince\Routing\RouteCollection;
 
 class RouteCollectionTest extends \PHPUnit_Framework_TestCase
@@ -11,7 +11,7 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
     {
         $routes = new RouteCollection();
         $this->assertEquals([], $routes->all());
-        $routes->add(new Route('/path', ''));
+        $routes->newRoute(new Route('/path', ''));
         $this->assertNotEmpty($routes->all());
     }
 
@@ -28,7 +28,7 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
     {
         $routes = new RouteCollection();
         $route = new Route('/foo', '');
-        $routes->add($route, 'foo');
+        $routes->newRoute($route, 'foo');
         $this->assertEquals($route, $routes->getByName('foo'));
     }
 
@@ -36,14 +36,14 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
     {
         $routes = new RouteCollection();
         $route = new Route('/foo', 'foo@bar');
-        $routes->add($route, 'foo');
+        $routes->newRoute($route, 'foo');
         $this->assertEquals($route, $routes->getByAction('foo@bar'));
     }
 
     public function testRouteBuilder()
     {
         $routes = new RouteCollection();
-        $routeBuilder = new RouteBuilder('/', $routes);
+        $routeBuilder = new RouteBuilderTrait('/', $routes);
         $route = $routeBuilder->http('/foo1', [
             'name' => 'foo1'
         ]);
@@ -69,8 +69,8 @@ class RouteCollectionTest extends \PHPUnit_Framework_TestCase
     public function testPrefix()
     {
         $routes = new RouteCollection();
-        $routeBuilder = new RouteBuilder('/', $routes);
-        $routeBuilder->prefix('/foo', function(RouteBuilder $routes){
+        $routeBuilder = new RouteBuilderTrait('/', $routes);
+        $routeBuilder->prefix('/foo', function(RouteBuilderTrait $routes){
             $routes->http('/bar', [
                 'name' => 'bar'
             ]);

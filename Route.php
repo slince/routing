@@ -452,6 +452,17 @@ class Route
     }
 
     /**
+     * Add the paramters of the route (not replace)
+     * @param array $parameters
+     * @return $this
+     */
+    public function addParameters(array $parameters)
+    {
+        $this->parameters += $parameters;
+        return $this;
+    }
+
+    /**
      * Gets all parameters
      * @return array
      */

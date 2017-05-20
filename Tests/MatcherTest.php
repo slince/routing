@@ -20,7 +20,7 @@ class MatcherTest extends \PHPUnit_Framework_TestCase
     {
         $routes = new RouteCollection();
         $route = new Route('/path', '');
-        $routes->add($route);
+        $routes->newRoute($route);
         $matcher = new Matcher();
         $_route = $matcher->match('/path', $routes);
         $this->assertEquals($_route, $route);
@@ -31,7 +31,7 @@ class MatcherTest extends \PHPUnit_Framework_TestCase
         $routes = new RouteCollection();
         $route = new Route('/foo/{id}/bar/{name}', '');
         $route->setHost('{main}.foo.com');
-        $routes->add($route);
+        $routes->newRoute($route);
 
         $matcher = new Matcher();
         $context = RequestContext::create();
@@ -57,7 +57,7 @@ class MatcherTest extends \PHPUnit_Framework_TestCase
             'name' => '\w+',
             'main' => 'm'
         ]);
-        $routes->add($route);
+        $routes->newRoute($route);
 
         $matcher = new Matcher();
         $context = RequestContext::create();
@@ -72,7 +72,7 @@ class MatcherTest extends \PHPUnit_Framework_TestCase
         $routes = new RouteCollection();
         $route = new Route('/foo/{id}/bar/{name}', '');
         $route->setMethods(['POST', 'PUT']);
-        $routes->add($route);
+        $routes->newRoute($route);
         $context = RequestContext::create();
         $this->assertEquals(['post', 'put'], $route->getMethods());
         $this->assertEquals('GET', $context->getMethod());
@@ -86,7 +86,7 @@ class MatcherTest extends \PHPUnit_Framework_TestCase
         $routes = new RouteCollection();
         $route = new Route('/foo/{id}/bar/{name}', '');
         $route->setSchemes(['https']);
-        $routes->add($route);
+        $routes->newRoute($route);
         $context = RequestContext::create();
         $context->setScheme('https');
         $this->assertEquals(['https'], $route->getSchemes());
