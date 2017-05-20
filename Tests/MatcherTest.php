@@ -79,7 +79,6 @@ class MatcherTest extends TestCase
         }
     }
 
-
     public function testMatchWithPrefixes()
     {
         $routes = new RouteCollection();
@@ -102,8 +101,8 @@ class MatcherTest extends TestCase
 
     public function testMatchSpecialRouteName()
     {
-        $routesection = new RouteCollection();
-        $routesection->add('$péß^a|', new Route('/bar'));
+        $routes = new RouteCollection();
+        $routes->http('/foo', 'action1')->setName('$péß^a|');
         $matcher = new UrlMatcher($routesection, new RequestContext());
         $this->assertEquals(array('_route' => '$péß^a|'), $matcher->match('/bar'));
     }
