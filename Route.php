@@ -89,7 +89,7 @@ class Route
      * schemes
      * @var array
      */
-    protected $schemes;
+    protected $schemes = [];
 
     /**
      * host
@@ -101,31 +101,31 @@ class Route
      * methods
      * @var array
      */
-    protected $methods;
+    protected $methods = [];
 
     /**
      * requirements
      * @var array
      */
-    protected $requirements;
+    protected $requirements = [];
 
     /**
      * Defaults
      * @var array
      */
-    protected $defaults;
+    protected $defaults= [];
 
     /**
      * parameters
      * @var array
      */
-    protected $parameters;
+    protected $parameters = [];
 
     /**
      * The computed parameters
      * @var array
      */
-    protected $computedParameters;
+    protected $computedParameters = [];
 
     /**
      * whether the route has been compiled
@@ -151,30 +151,20 @@ class Route
      */
     protected $variables = [];
 
-    public function __construct(
-        $path,
-        $action,
-        array $defaults = [],
-        array $requirements = [],
-        $host = '',
-        array $schemes = [],
-        array $methods = []
-    ) {
+    public function __construct($path, $action) {
         $this->setPath($path);
         $this->setAction($action);
-        $this->setDefaults($defaults);
-        $this->setRequirements($requirements);
-        $this->setHost($host);
-        $this->setSchemes($schemes);
-        $this->setMethods($methods);
     }
 
     /**
+     * Sets route name
      * @param string $name
+     * @return $this;
      */
     public function setName($name)
     {
         $this->name = $name;
+        return $this;
     }
 
     /**
@@ -241,8 +231,18 @@ class Route
      */
     public function setSchemes(array $schemes)
     {
-        $this->schemes = $schemes;
+        $this->schemes = array_map('strtolower', $schemes);
         return $this;
+    }
+
+    /**
+     * Checks whether the route has the scheme
+     * @param string $scheme
+     * @return bool
+     */
+    public function hasScheme($scheme)
+    {
+        return in_array(strtolower($scheme), $this->schemes);
     }
 
     /**
@@ -261,8 +261,18 @@ class Route
      */
     public function setMethods(array $methods)
     {
-        $this->methods = array_map('strtolower', $methods);
+        $this->methods = array_map('strtoupper', $methods);
         return $this;
+    }
+
+    /**
+     * Checks whether the route has the request method
+     * @param string $method
+     * @return bool
+     */
+    public function hasMethod($method)
+    {
+        return in_array(strtoupper($method), $this->methods);
     }
 
     /**
@@ -347,6 +357,16 @@ class Route
     }
 
     /**
+     * Checks whether the route has the requirement
+     * @param string $name
+     * @return bool
+     */
+    public function hasRequirement($name)
+    {
+        return isset($this->requirements[$name]);
+    }
+
+    /**
      * Gets a requirement by its name
      * @param string $name
      * @param string $default
@@ -363,6 +383,16 @@ class Route
     public function getDefaults()
     {
         return $this->defaults;
+    }
+
+    /**
+     * Sets a default item
+     * @param string $name
+     * @param string $value
+     */
+    public function setDefault($name, $value)
+    {
+        $this->defaults[$name] = $value;
     }
 
     /**
@@ -503,7 +533,9 @@ class Route
     public function compile($reCompile = false)
     {
         if (!$this->isCompiled || $reCompile) {
-            $this->hostRegex = $this->parseToRegex($this->getHost());
+            if ($this->getHost()) {
+                $this->hostRegex = $this->parseToRegex($this->getHost());
+            }
             $this->pathRegex = $this->parseToRegex($this->getPath());
             $this->isCompiled = true;
         }

@@ -1,108 +1,123 @@
 <?php
 namespace Slince\Routing\Tests;
 
+use PHPUnit\Framework\TestCase;
 use Slince\Routing\Route;
 
-class RouteTest extends \PHPUnit_Framework_TestCase
+class RouteTest extends TestCase
 {
-
-    protected function createRoute(
-        $path,
-        $action = '',
-        array $defaults = [],
-        array $requirements = [],
-        $host = '',
-        array $schemes = [],
-        array $methods = []
-    ) {
-        return new Route($path,
-            $action,
-            $defaults,
-            $requirements,
-            $host,
-            $schemes,
-            $methods
-        );
-    }
-
-    public function testInterface()
+    public function testConstruct()
     {
-        $route = new Route('/path', '');
-        $this->assertInstanceOf('Slince\Routing\RouteInterface', $route);
+        $route = new Route('/foo', 'Pages::foo');
+        $this->assertEquals('/foo', $route->getPath());
+        $this->assertEquals('Pages::foo', $route->getAction());
     }
-    
+
+    public function testName()
+    {
+        $route = new Route('/foo', 'Pages::foo');
+        $route->setName('foo');
+        $this->assertEquals('foo', $route->getName());
+    }
+
     public function testPath()
     {
-        $route = new Route('/path', '');
-        $this->assertEquals('/path', $route->getPath());
-        $route->setPath('/path/{bar}');
-        $this->assertEquals('/path/{bar}', $route->getPath());
+        $route = new Route('/{foo}', 'Pages::foo');
+        $route->setPath('/{bar}');
+        $this->assertEquals('/{bar}', $route->getPath());
         $route->setPath('');
         $this->assertEquals('/', $route->getPath());
+        $route->setPath('bar');
+        $this->assertEquals('/bar', $route->getPath());
         $route->setPath('//path');
         $this->assertEquals('/path', $route->getPath());
-        $route->setPath('path/');
-        $this->assertEquals('/path', $route->getPath());
-        $this->assertEquals($route, $route->setPath('/'));
     }
 
     public function testDefaults()
     {
-        $route = new Route('/path', '');
+        $route = new Route('/{foo}', 'Pages::foo');
         $route->setDefaults(['foo' => 'bar']);
         $this->assertEquals(['foo' => 'bar'], $route->getDefaults());
+        $this->assertEquals($route, $route->setDefaults([]));
+        $route->setDefault('foo', 'bar');
         $this->assertEquals('bar', $route->getDefault('foo'));
-        $this->assertNull($route->getDefault('undefined'));
-        $this->assertTrue($route->hasDefault('foo'));
+        $route->setDefault('foo2', 'bar2');
+        $this->assertEquals('bar2', $route->getDefault('foo2'));
+        $this->assertNull($route->getDefault('not_defined'));
+        $route->setDefaults(['foo' => 'foo']);
+        $route->addDefaults(['bar' => 'bar']);
+        $this->assertEquals($route, $route->addDefaults([]));
+        $this->assertEquals(['foo' => 'foo', 'bar' => 'bar'], $route->getDefaults());
     }
 
     public function testRequirements()
     {
-        $route = new Route('/path', '');
-        $route->setRequirements(['id' => '\d+']);
-        $this->assertEquals(['id' => '\d+'], $route->getRequirements());
-        $this->assertEquals('\d+', $route->getRequirement('id'));
-        $this->assertNull($route->getRequirement('undefined'));
-        $route->addRequirements(['name'=>'\w+']);
-        $this->assertEquals(['id' => '\d+', 'name'=>'\w+'], $route->getRequirements());
+        $route = new Route('/{foo}', 'Pages::foo');
+        $route->setRequirements(['foo' => '\d+']);
+        $this->assertEquals(['foo' => '\d+'], $route->getRequirements());
+        $this->assertEquals('\d+', $route->getRequirement('foo'));
+        $this->assertNull($route->getRequirement('bar'));
+        $this->assertEquals($route, $route->setRequirements([]));
+        $route->setRequirements(['foo' => '\d+']);
+        $route->addRequirements(['bar' => '\d+']);
+        $this->assertEquals($route, $route->addRequirements([]));
+        $this->assertEquals(['foo' => '\d+', 'bar' => '\d+'], $route->getRequirements());
     }
-
-    public function testSchemes()
+    public function testRequirement()
     {
-        $route = new Route('/path', '');
-        $this->assertEquals([], $route->getSchemes());
-        $route->setSchemes(['http']);
-        $this->assertEquals(['http'], $route->getSchemes());
-    }
-
-    public function testMethods()
-    {
-        $route = new Route('/path', '');
-        $this->assertEquals([], $route->getMethods());
-        $route->setMethods(['get']);
-        $this->assertEquals(['get'], $route->getMethods());
+        $route = new Route('/{foo}', 'Pages::foo');
+        $this->assertFalse($route->hasRequirement('foo'));
+        $route->setRequirement('foo', '\d+');
+        $this->assertEquals('\d+', $route->getRequirement('foo'));
+        $this->assertTrue($route->hasRequirement('foo'));
     }
 
     public function testHost()
     {
-        $route = new Route('/path', '');
-        $this->assertEquals('', $route->getHost());
-        $route->setHost('www.domain.com');
-        $this->assertEquals('www.domain.com', $route->getHost());
+        $route = new Route('/{foo}', 'Pages::foo');
+        $route->setHost('{locale}.domain.com');
+        $this->assertEquals('{locale}.domain.com', $route->getHost());
+    }
+
+    public function testScheme()
+    {
+        $route = new Route('/{foo}', 'Pages::foo');
+        $this->assertEquals([], $route->getSchemes());
+        $this->assertFalse($route->hasScheme('http'));
+        $route->setSchemes(['hTTp']);
+        $this->assertEquals(['http'], $route->getSchemes());
+        $this->assertTrue($route->hasScheme('htTp'));
+        $this->assertFalse($route->hasScheme('httpS'));
+        $route->setSchemes(['HttpS', 'hTTp']);
+        $this->assertEquals(['https', 'http'], $route->getSchemes());
+        $this->assertTrue($route->hasScheme('htTp'));
+        $this->assertTrue($route->hasScheme('httpS'));
+    }
+
+    public function testMethod()
+    {
+        $route = new Route('/{foo}', 'Pages::foo');
+        $this->assertEquals([], $route->getMethods());
+        $route->setMethods(['gEt']);
+        $this->assertEquals(['GET'], $route->getMethods());
+        $route->setMethods(['gEt', 'PosT']);
+        $this->assertEquals(['GET', 'POST'], $route->getMethods());
+        $this->assertTrue($route->hasMethod('Get'));
     }
 
     public function testCompile()
     {
-        $route = new Route('/users/{id}/{action}', '');
+        $route = new Route('/{foo}', 'Pages::foo');
+        $route->setRequirement('foo', '\w+');
+        $route->setHost('{locale}.domain.com');
         $this->assertFalse($route->isCompiled());
+        $this->assertNull($route->getHostRegex());
+        $this->assertNull($route->getPathRegex());
         $route->compile();
         $this->assertTrue($route->isCompiled());
-        $this->assertEquals('#^/users/(?P<id>.+)/(?P<action>.+)$#i', $route->getPathRegex());
-        $this->assertEquals(['id', 'action'], $route->getVariables());
-        $route->setHost('{mainDomain}.domain.com');
-        $route->compile(true);
-        $this->assertTrue($route->isCompiled());
-        $this->assertEquals('#^/users/(?P<id>.+)/(?P<action>.+)$#i', $route->getPathRegex());
-        $this->assertEquals('#^(?P<mainDomain>.+).domain.com$#i', $route->getHostRegex());
+        $this->assertEquals('#^(?P<locale>.+).domain.com$#i',  $route->getHostRegex());
+        $this->assertEquals('#^/(?P<foo>\w+)$#i',  $route->getPathRegex());
+
+        $this->assertEquals(['locale', 'foo'], $route->getVariables());
     }
 }

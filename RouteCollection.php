@@ -10,12 +10,6 @@ class RouteCollection implements \Countable, \IteratorAggregate
     use RouteBuilderTrait;
 
     /**
-     * Array of collection options
-     * @var array
-     */
-    protected $options;
-
-    /**
      * Array of routes
      * @var Route[]
      */
@@ -33,10 +27,18 @@ class RouteCollection implements \Countable, \IteratorAggregate
      */
     protected $actions = [];
 
-    public function __construct(array $routes = [], array $options = [])
+    protected static $defaultOptions = [
+        'prefix' => null,
+        'host' => null,
+        'methods' => [],
+        'schemes' => [],
+        'requirements' => [],
+        'defaults' => []
+    ];
+
+    public function __construct(array $routes = [])
     {
         $this->routes = $routes;
-        $this->options = $options;
     }
 
     /**
@@ -60,7 +62,7 @@ class RouteCollection implements \Countable, \IteratorAggregate
      * @param string $name
      * @return Route|null
      */
-    public function geByName($name)
+    public function getByName($name)
     {
         return isset($this->names[$name]) ? $this->names[$name] : null;
     }
@@ -85,75 +87,45 @@ class RouteCollection implements \Countable, \IteratorAggregate
     }
 
     /**
-     * Gets all options
-     * @return array
-     */
-    public function getOptions()
-    {
-        return $this->options;
-    }
-
-    /**
-     * Gets the collection option by its name
-     * @param string $name
-     * @return mixed|null
-     */
-    public function getOption($name)
-    {
-        return isset($this->options[$name]) ? $this->options[$name] : null;
-    }
-
-
-    /**
-     * @param array $options
-     */
-    public function setOptions($options)
-    {
-        $this->options = $options;
-    }
-
-    /**
      * Creates a sub collection routes
-     * @param $options
+     * @param string|array $options
      * @param \Closure $callback
      */
     public function group($options, \Closure $callback)
     {
-        $collection = new RouteCollection([], $options);
+        if (is_string($options)) {
+            $options = ['prefix' => $options];
+        }
+        $collection = new RouteCollection([]);
         call_user_func($callback, $collection);
-        $this->mergeSubCollection($collection);
+        $this->mergeSubCollection($collection, $options);
     }
 
     /**
      * Merges routes from an route collection
      * @param RouteCollection $collection
+     * @param array $options
      */
-    public function mergeSubCollection(RouteCollection $collection)
+    protected function mergeSubCollection(RouteCollection $collection, $options = [])
     {
-        $extraParameters = array_diff_key($collection->getOptions(), [
-            'prefix' => null,
-            'host' => null,
-            'methods' => [],
-            'schemes' => [],
-            'requirements' => [],
-            'defaults' => []
-        ]);
+        $extraParameters = array_diff_key($options, static::$defaultOptions);
+        $options = array_replace(static::$defaultOptions, $options);
         foreach ($collection->all() as $route) {
-            if ($prefix = $this->getOption('prefix')) {
-                $path =  trim($prefix, '/') . '/' . trim($route->getPath(), '/');
+            if ($options['prefix']) {
+                $path =  trim($options['prefix'], '/') . '/' . trim($route->getPath(), '/');
                 $route->setPath($path);
             }
             if (!$route->getHost()) {
-                $route->setHost($this->getOption('host'));
+                $route->setHost($options['host']);
             }
             if (!$route->getMethods()) {
-                $route->setMethods($this->getOption('methods'));
+                $route->setMethods((array)$options['methods']);
             }
             if (!$route->getSchemes()) {
-                $route->setSchemes($this->getOption('schemes') ?: []);
+                $route->setSchemes((array)$options['schemes']);
             }
-            $route->addRequirements($this->getOption('requirements') ?: []);
-            $route->addDefaults($this->getOption('defaults') ?: []);
+            $route->addRequirements($options['requirements']);
+            $route->addDefaults($options['defaults']);
             $route->addParameters($extraParameters);
             $this->add($route);
         }
