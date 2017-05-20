@@ -11,9 +11,9 @@ class MatcherTest extends \PHPUnit_Framework_TestCase
     public function testContext()
     {
         $matcher = new Matcher();
-        $this->assertNull($matcher->getContext());
-        $matcher->setContext(RequestContext::create());
-        $this->assertInstanceOf('Slince\Routing\RequestContext', $matcher->getContext());
+        $this->assertNull($matcher->getRequest());
+        $matcher->setRequest(RequestContext::create());
+        $this->assertInstanceOf('Slince\Routing\RequestContext', $matcher->getRequest());
     }
     
     public function testSimpleMatcher()
@@ -36,7 +36,7 @@ class MatcherTest extends \PHPUnit_Framework_TestCase
         $matcher = new Matcher();
         $context = RequestContext::create();
         $context->setHost('www.foo.com');
-        $matcher->setContext($context);
+        $matcher->setRequest($context);
 
         $_route = $matcher->match('/foo/100/bar/steven', $routes);
         $this->assertEquals($_route, $route);
@@ -62,7 +62,7 @@ class MatcherTest extends \PHPUnit_Framework_TestCase
         $matcher = new Matcher();
         $context = RequestContext::create();
         $context->setHost('www.foo.com');
-        $matcher->setContext($context);
+        $matcher->setRequest($context);
         $this->setExpectedExceptionRegExp('Slince\Routing\Exception\RouteNotFoundException');
         $matcher->match('/foo/100/bar/steven', $routes);
     }

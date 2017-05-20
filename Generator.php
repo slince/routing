@@ -5,15 +5,16 @@
  */
 namespace Slince\Routing;
 
+use Psr\Http\Message\ServerRequestInterface;
 use Slince\Routing\Exception\InvalidArgumentException;
 
 class Generator
 {
     /**
      * The request context
-     * @var RequestContext
+     * @var ServerRequestInterface
      */
-    protected $context;
+    protected $request;
 
     /**
      * Whether to strictly checks the requirements
@@ -25,29 +26,29 @@ class Generator
      * The variable
      * @var array
      */
-    protected $routeVariables = [];
+    protected $lastRouteVariables = [];
 
-    public function __construct(RequestContext $context)
+    public function __construct(ServerRequestInterface $request)
     {
-        $this->context = $context;
+        $this->request = $request;
     }
 
     /**
      * Sets the request context
-     * @param RequestContext $context
+     * @param ServerRequestInterface $request
      */
-    public function setContext(RequestContext $context)
+    public function setRequest(ServerRequestInterface $request)
     {
-        $this->context = $context;
+        $this->request = $request;
     }
 
     /**
      * Gets the request context
-     * @return RequestContext $context
+     * @return ServerRequestInterface $context
      */
-    public function getContext()
+    public function getRequest()
     {
-        return $this->context;
+        return $this->request;
     }
 
     /**
@@ -87,7 +88,7 @@ class Generator
         }
         $urlSlugs[] = $this->getRoutePath($route, $parameters);
         // Build query string
-        $extraParameters = array_diff_key($parameters, array_flip($this->routeVariables));
+        $extraParameters = array_diff_key($parameters, array_flip($this->lastRouteVariables));
         if ($extraParameters && $query = http_build_query($extraParameters, '', '&')) {
             $urlSlugs[] =  '?' . $query;
         }
@@ -101,16 +102,16 @@ class Generator
      */
     protected function getRouteSchemeAndPort(Route $route)
     {
-        $scheme = $this->context->getScheme();
+        $scheme = $this->request->getUri()->getScheme();
         $requiredSchemes = $route->getSchemes();
         if ($requiredSchemes && !in_array($scheme, $requiredSchemes)) {
-            $scheme = reset($requiredSchemes);
+            $scheme = $requiredSchemes[0];
         }
         $port = '';
-        if (strcasecmp($scheme, 'http') == 0 && $this->context->getPort() != 80) {
-            $port = ':' . $this->context->getPort();
-        } elseif (strcasecmp($scheme, 'https') == 0 && $this->context->getPort() != 443) {
-            $port = ':' . $this->context->getPort();
+        if (strcasecmp($scheme, 'http') == 0 && $this->request->getUri()->getPort() != 80) {
+            $port = ':' . $this->request->getUri()->getPort();
+        } elseif (strcasecmp($scheme, 'https') == 0 && $this->request->getUri()->getPort() != 443) {
+            $port = ':' . $this->request->getUri()->getPort();
         }
         return [$scheme, $port];
     }
@@ -125,7 +126,7 @@ class Generator
     {
         //If the route has no required host, returns the current host
         if (!$route->getHost()) {
-            return $this->context->getHost();
+            return $this->request->getUri()->getHost();
         }
         return $this->replaceRouteNamedParameters($route->getHost(), $parameters, $route->getRequirements());
     }
@@ -152,7 +153,7 @@ class Generator
     protected function replaceRouteNamedParameters($path, $parameters, $requirements = [])
     {
         return preg_replace_callback('#\{([a-zA-Z0-9_,]*)\}#', function ($matches) use ($parameters, $requirements) {
-            $this->routeVariables[] = $matches[1];
+            $this->lastRouteVariables[] = $matches[1];
             //The named parameter value must be provided if the strict mode
             if (!isset($parameters[$matches[1]]) && $this->strictRequirements) {
                 throw new InvalidArgumentException(sprintf('Missing parameter "%s"', $matches[1]));

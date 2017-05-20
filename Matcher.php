@@ -5,69 +5,74 @@
  */
 namespace Slince\Routing;
 
+use Psr\Http\Message\ServerRequestInterface;
 use Slince\Routing\Exception\RouteNotFoundException;
 use Slince\Routing\Exception\MethodNotAllowedException;
 
 class Matcher
 {
     /**
-     * request context
-     * @var RequestContext
+     * Routes collection
+     * @var Route[]
      */
-    protected $context;
+    protected $routes;
 
-    public function __construct(RequestContext $context = null)
+    public function __construct(RouteCollection $routes)
     {
-        $this->context = $context;
+        $this->routes = $routes;
     }
 
     /**
      * Find the route that match the given path from the routes
      * @param string $path
-     * @param RouteCollection $routes
      * @return Route
      */
-    public function match($path, RouteCollection $routes)
+    public function match($path)
     {
         $path = '/' . ltrim($path, '/');
-        $route = is_null($this->context) ? $this->findRouteWithoutRequestContext($path, $routes)
-            : $this->findRoute($path, $routes);
+        return $this->doMatch($path);
+    }
+
+    /**
+     * Find the route that match given request
+     * @param ServerRequestInterface $request
+     * @return Route
+     */
+    public function matchRequest(ServerRequestInterface $request)
+    {
+        return $this->doMatch($request);
+    }
+
+    /**
+     * Do match
+     * @param string|ServerRequestInterface $pathOrRequest
+     * @return Route
+     */
+    protected function doMatch($pathOrRequest)
+    {
+        $route = $pathOrRequest instanceof ServerRequestInterface
+            ? $this->findRouteFromRequest($pathOrRequest)
+            : $this->findRoute($pathOrRequest);
         $computedParameters = $this->computeRouteParameters($route);
         $route->setComputedParameters($computedParameters);
         return $route;
     }
 
     /**
-     * Set the request context
-     * @param RequestContext $context
-     */
-    public function setContext(RequestContext $context)
-    {
-        $this->context = $context;
-    }
-
-    /**
-     * Gets the request context
-     * @return RequestContext $context
-     */
-    public function getContext()
-    {
-        return $this->context;
-    }
-
-    /**
-     * @param string $path
-     * @param RouteCollection $routes
+     * @param ServerRequestInterface $request
      * @throws MethodNotAllowedException
      * @throws RouteNotFoundException
      * @return Route
      */
-    protected function findRoute($path, RouteCollection $routes)
+    protected function findRouteFromRequest(ServerRequestInterface $request)
     {
         $requiredMethods = [];
-        foreach ($routes as $route) {
-            if ($this->matchSchema($route) && $this->matchHost($route) && $this->matchPath($path, $route)) {
-                if ($this->matchMethod($route)) {
+        foreach ($this->routes as $route) {
+            if ($this->matchSchema($route, $request)
+                && $this->matchHost($route, $request)
+                && $this->matchPath($request->getUri()->getPath(), $route)
+            ) {
+                if ($this->matchMethod($route, $request)) {
                     return $route;
                 } else {
                     $requiredMethods += $route->getMethods();
@@ -82,13 +87,12 @@ class Matcher
 
     /**
      * @param string $path
-     * @param RouteCollection $routes
      * @throws RouteNotFoundException
      * @return Route
      */
-    protected function findRouteWithoutRequestContext($path, RouteCollection $routes)
+    protected function findRoute($path)
     {
-        foreach ($routes as $route) {
+        foreach ($this->routes as $route) {
             if ($this->matchPath($path, $route)) {
                 return $route;
             }
@@ -99,14 +103,15 @@ class Matcher
     /**
      * Checks whether the route matches the current request host
      * @param Route $route
+     * @param ServerRequestInterface $request
      * @return boolean
      */
-    protected function matchHost(Route $route)
+    protected function matchHost(Route $route, $request)
     {
         if (empty($route->getHost())) {
             return true;
         }
-        if (preg_match($route->compile()->getHostRegex(), $this->context->getHost(), $matches)) {
+        if (preg_match($route->compile()->getHostRegex(), $request->getUri()->getHost(), $matches)) {
             $routeParameters = array_intersect_key($matches, array_flip($route->getVariables()));
             $route->setParameter('_hostMatches', $routeParameters);
             return true;
@@ -117,27 +122,29 @@ class Matcher
     /**
      * Checks whether the route matches the current request method
      * @param Route $route
+     * @param ServerRequestInterface $request
      * @return boolean
      */
-    protected function matchMethod(Route $route)
+    protected function matchMethod(Route $route, $request)
     {
         if (!$route->getMethods()) {
             return true;
         }
-        return in_array(strtolower($this->context->getMethod()), $route->getMethods());
+        return in_array(strtolower($request->getMethod()), $route->getMethods());
     }
 
     /**
      * Checks whether the route matches the scheme
      * @param Route $route
+     * @param ServerRequestInterface $request
      * @return boolean
      */
-    protected function matchSchema(Route $route)
+    protected function matchSchema(Route $route, $request)
     {
         if (!$route->getSchemes()) {
             return true;
         }
-        return in_array($this->context->getScheme(), $route->getSchemes());
+        return in_array($request->getUri()->getScheme(), $route->getSchemes());
     }
 
     /**
