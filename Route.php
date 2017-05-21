@@ -562,7 +562,11 @@ class Route
     {
         $regex = preg_replace_callback('#\{([a-zA-Z0-9_,]*)\}#i', function ($matches) {
             $this->variables[] = $matches[1];
-            return "(?P<{$matches[1]}>" . (isset($this->requirements[$matches[1]]) ? $this->requirements[$matches[1]] : '.+') . ')';
+            $regex = "(?P<{$matches[1]}>" . (isset($this->requirements[$matches[1]]) ? $this->requirements[$matches[1]] : '.+') . ')';
+            if ($this->hasDefault($matches[1])) {
+                $regex .= '?';
+            }
+            return $regex;
         }, $path);
         return "#^{$regex}$#i";
     }

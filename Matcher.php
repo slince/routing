@@ -130,7 +130,7 @@ class Matcher
         if (!$route->getMethods()) {
             return true;
         }
-        return in_array(strtolower($request->getMethod()), $route->getMethods());
+        return in_array(strtoupper($request->getMethod()), $route->getMethods());
     }
 
     /**

@@ -60,7 +60,7 @@ class MatcherTest extends TestCase
         $routes = new RouteCollection();
         $route = $routes->get('/foo', 'foo');
         $matcher = new Matcher($routes);
-        $request = new ServerRequest(['HTTP_REQUEST_METHOD' => 'HEAD'], [], 'http://domain.com/foo');
+        $request = new ServerRequest([], [], 'http://domain.com/foo', 'HEAD');
         $this->assertTrue ($route === $matcher->matchRequest($request));
     }
 
@@ -93,10 +93,10 @@ class MatcherTest extends TestCase
     {
         $routes = new RouteCollection();
         $routes->group('{locale}', function(RouteCollection $routes){
-            $routes->get('/bar', 'action');
+            $routes->get('/{foo}', 'action');
         });
         $matcher = new Matcher($routes);
-        $this->assertEquals(['locale' => 'en'], $matcher->match('/en/foo')->getComputedParameters());
+        $this->assertEquals(['locale' => 'en', 'foo' => 'bar'], $matcher->match('/en/bar')->getComputedParameters());
     }
 
     public function testMatchSpecialRouteName()
@@ -120,14 +120,6 @@ class MatcherTest extends TestCase
         $this->assertEquals(['foo' => $chars], $matcher->match('/'.strtr($chars, array('%' => '%25')).'/bar')->getComputedParameters());
     }
 
-    public function testMatchWithDotMetacharacterInRequirements()
-    {
-        $routes = new RouteCollection();
-        $routes->http('/{foo}/bar', 'action')
-            ->setRequirements(['foo' => '.+']);
-        $matcher = new Matcher($routes);
-        $this->assertEquals(['foo' => "\n"], $matcher->match('/'.urlencode("\n").'/bar')->getComputedParameters());
-    }
 
     public function testMatchRegression()
     {
@@ -195,8 +187,13 @@ class MatcherTest extends TestCase
     public function testOptionalVariableWithNoRealSeparator()
     {
         $routes = new RouteCollection();
-        $routes->http('/get{what}', 'action')
+        $route = $routes->http('/get/{what}', 'action')
             ->setDefaults(['what' => 'All']);
+
+        $regex = $route->compile()->getPathRegex();
+        var_dump($regex);
+        var_dump(preg_match($regex, '/get/'));
+        exit;
         $matcher = new Matcher($routes);
 
         $this->assertEquals(['what' => 'All'], $matcher->match('/get')->getComputedParameters());
