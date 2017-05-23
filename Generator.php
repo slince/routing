@@ -17,12 +17,6 @@ class Generator
     protected $request;
 
     /**
-     * Whether to strictly checks the requirements
-     * @var boolean
-     */
-    protected $strictRequirements = false;
-
-    /**
      * The variable
      * @var array
      */
@@ -49,24 +43,6 @@ class Generator
     public function getRequest()
     {
         return $this->request;
-    }
-
-    /**
-     * Sets whether to strictly check the requirements
-     * @param boolean $enabled
-     */
-    public function setStrictRequirements($enabled)
-    {
-        $this->strictRequirements = $enabled;
-    }
-
-    /**
-     * Checks whether to strictly check the requirements
-     * @return boolean
-     */
-    public function isStrictRequirements()
-    {
-        return $this->strictRequirements;
     }
 
     /**
@@ -129,7 +105,7 @@ class Generator
                 }
             }
         } else {
-            $host = $this->replaceRouteNamedParameters($route->getHost(), $parameters, $route->getRequirements());
+            $host = $this->replaceRouteNamedParameters($route, $route->getHost(), $parameters);
         }
         return $scheme . '://' . $host;
     }
@@ -142,36 +118,39 @@ class Generator
      */
     protected function getRoutePath(Route $route, $parameters)
     {
-        return $this->replaceRouteNamedParameters($route->getPath(), $parameters, $route->getRequirements());
+        return $this->replaceRouteNamedParameters($route, $route->getPath(), $parameters);
     }
 
     /**
      * Replaces the named parameters of the route path or host
+     * @param Route $route
      * @param string $path
      * @param array $parameters
-     * @param array $requirements
      * @throws InvalidArgumentException
      * @return string
      */
-    protected function replaceRouteNamedParameters($path, $parameters, $requirements = [])
+    protected function replaceRouteNamedParameters(Route $route, $path, $parameters)
     {
-        return preg_replace_callback('#\{([a-zA-Z0-9_,]*)\}#', function ($matches) use ($parameters, $requirements) {
-            $this->lastRouteVariables[] = $matches[1];
-            //The named parameter value must be provided if the strict mode
-            if (!isset($parameters[$matches[1]]) && $this->strictRequirements) {
-                throw new InvalidArgumentException(sprintf('Missing parameter "%s"', $matches[1]));
+        return preg_replace_callback('#[/\.]?\{([a-zA-Z0-9_,]*)\}#', function ($match) use ($route, $parameters) {
+            $this->lastRouteVariables[] = $match[1];
+            //The named parameter value must be provided if the route has not the default value fot it
+            if ((!isset($parameters[$match[1]]) || is_null($parameters[$match[1]])) && !$route->hasDefault($match[1])) {
+                throw new InvalidArgumentException(sprintf('Missing parameter "%s"', $match[1]));
             }
-            $supportVariable = isset($parameters[$matches[1]]) ? $parameters[$matches[1]] : '';
-            if ($this->strictRequirements) {
-                if (isset($requirements[$matches[1]]) && !preg_match('#^' . $requirements[$matches[1]] . '$#',
-                        $supportVariable)
-                ) {
-                    $message = sprintf('Parameter "%s" must match "%s" ("%s" given) to generate a corresponding URL.',
-                        $matches[1], $requirements[$matches[1]], $supportVariable);
-                    throw new InvalidArgumentException($message);
-                }
+            $providedValue = isset($parameters[$match[1]]) && !is_null($parameters[$match[1]]) ?
+                $parameters[$match[1]] : $route->getDefault($match[1]);
+
+            if ($route->hasRequirement($match[1])
+                && !preg_match('#^' . $route->getRequirement($match[1]) . '$#', $providedValue)
+            ){
+                $message = sprintf('Parameter "%s" must match "%s" ("%s" given) to generate a corresponding URL.',
+                    $match[1], $route->getRequirement($match[1]), $providedValue);
+                throw new InvalidArgumentException($message);
             }
-            return $supportVariable;
+            if ($route->getDefault($match[1]) === $providedValue) {
+                return '';
+            }
+            return str_replace('{' . $match[1] . '}', $providedValue, $match[0]);
         }, $path);
     }
 }

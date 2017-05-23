@@ -76,32 +76,22 @@ class GeneratorTest extends TestCase
         $route = new Route('/foo/{page}', 'action');
         $route->setDefault('page', 1);
         $generator = new Generator();
-        $this->assertEquals('/foo/1', $generator->generate($route, ['page' => 1]));
-        $this->assertEquals('/foo/0', $generator->generate($route, ['page' => 0]));
         $this->assertEquals('/foo', $generator->generate($route));
+        $this->assertEquals('/foo', $generator->generate($route, ['page' => 1]));
+        $this->assertEquals('/foo/0', $generator->generate($route, ['page' => 0]));
     }
 
-    public function testRelativeUrlWithExtraParameters()
+    public function testGenerateUrlWithExtraParameters()
     {
         $route = new Route('/foo/{page}', 'action');
         $route->setDefault('page', 1);
         $generator = new Generator();
-        $this->assertEquals('/foo/1', $generator->generate($route, ['page' => 1]));
-        $this->assertEquals('/foo/0', $generator->generate($route, ['page' => 0]));
-        $this->assertEquals('/foo', $generator->generate($route));
-    }
-
-    public function testAbsoluteUrlWithExtraParameters()
-    {
-        $route = new Route('/foo/{page}', 'action');
-        $route->setDefault('page', 1);
-        $generator = new Generator();
-        $this->assertEquals('/foo/1?foo=bar', $generator->generate($route, [
-            'page' => 1,
+        $this->assertEquals('/foo/2?foo=bar&bar=baz', $generator->generate($route, [
+            'page' => 2,
             'foo' => 'bar',
             'bar' => 'baz'
         ]));
-        $this->assertEquals('/foo/1', $generator->generate($route, [
+        $this->assertEquals('/foo', $generator->generate($route, [
             'page' => 1,
             'foo' => null,
         ]));
@@ -130,17 +120,6 @@ class GeneratorTest extends TestCase
         ]);
     }
 
-    public function testGenerateForRouteWithInvalidOptionalParameterNonStrict()
-    {
-        $route = new Route('/foo/{page}', 'action');
-        $route->setRequirement('page', '\d+');
-        $generator = new Generator();
-        $generator->setStrictRequirements(false);
-        $this->assertEquals('/foo/non_number', $generator->generate($route, [
-            'page' => 'non_number',
-        ]));
-    }
-
     public function testRequiredParamAndEmptyPassed()
     {
         $this->expectException(InvalidArgumentException::class);
@@ -159,7 +138,7 @@ class GeneratorTest extends TestCase
         $route->setSchemes(['https']);
         $request = new ServerRequest([], [], 'http://localhost/foo-bar');
         $generator = new Generator($request);
-        $this->assertEquals('https://localhost/foo', $generator->generate($route));
+        $this->assertEquals('https://localhost/foo', $generator->generate($route, [], true));
     }
 
     public function testSchemeRequirementCreatesUrlFoCurrentRequiredScheme()
@@ -168,6 +147,6 @@ class GeneratorTest extends TestCase
         $route->setSchemes(['https', 'http']);
         $request = new ServerRequest([], [], 'http://localhost/foo-bar');
         $generator = new Generator($request);
-        $this->assertEquals('http://localhost/foo', $generator->generate($route));
+        $this->assertEquals('http://localhost/foo', $generator->generate($route, [], true));
     }
 }
