@@ -210,22 +210,6 @@ class MatcherTest extends TestCase
         $this->assertEquals(['what' => 'Sites'], $matcher->match('/getSitesSuffix')->getComputedParameters());
     }
 
-    public function testDefaultRequirementOfVariable()
-    {
-        $routes = new RouteCollection();
-        $route = $routes->create('/{page}.{_format}', 'action')
-            ->setRequirement('_format', '[\w\.]+');
-
-
-//                echo $regex = $route->compile()->getPathRegex();
-//        var_dump(preg_match($regex, '/index.mobile.html'));
-//exit;
-
-        $matcher = new Matcher($routes);
-        $this->assertEquals(['page' => 'index', '_format' => 'mobile.html'],
-        $matcher->match('/index.mobile.html')->getComputedParameters());
-    }
-
     public function testDefaultRequirementOfVariableDisallowsSlash()
     {
         $routes = new RouteCollection();

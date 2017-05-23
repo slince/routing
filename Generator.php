@@ -28,7 +28,7 @@ class Generator
      */
     protected $lastRouteVariables = [];
 
-    public function __construct(ServerRequestInterface $request)
+    public function __construct(ServerRequestInterface $request = null)
     {
         $this->request = $request;
     }
@@ -76,15 +76,16 @@ class Generator
      * @param boolean $absolute
      * @return string
      */
-    public function generate(Route $route, $parameters = [], $absolute = true)
+    public function generate(Route $route, $parameters = [], $absolute = false)
     {
+        if ($absolute && !$this->request) {
+            throw new InvalidArgumentException("You must provide the request context to generate the full url");
+        }
         $computedParameters = array_replace($route->getDefaults(), $parameters);
         $urlSlugs = [];
         //generate absolute url
         if ($absolute) {
-            list($scheme, $port) = $this->getRouteSchemeAndPort($route);
-            $host = $this->getRouteHost($route, $computedParameters);
-            $urlSlugs[] = "{$scheme}://{$host}{$port}";
+            $urlSlugs[] = $this->getRouteSchemeAndHost($route);
         }
         $urlSlugs[] = $this->getRoutePath($route, $parameters);
         // Build query string
@@ -95,40 +96,42 @@ class Generator
         return implode('', $urlSlugs);
     }
 
-    /**
-     * 获取route的scheme和port
-     * @param Route $route
-     * @return array
-     */
-    protected function getRouteSchemeAndPort(Route $route)
+    protected function getRouteScheme(Route $route)
     {
         $scheme = $this->request->getUri()->getScheme();
         $requiredSchemes = $route->getSchemes();
         if ($requiredSchemes && !in_array($scheme, $requiredSchemes)) {
             $scheme = $requiredSchemes[0];
         }
-        $port = '';
-        if (strcasecmp($scheme, 'http') == 0 && $this->request->getUri()->getPort() != 80) {
-            $port = ':' . $this->request->getUri()->getPort();
-        } elseif (strcasecmp($scheme, 'https') == 0 && $this->request->getUri()->getPort() != 443) {
-            $port = ':' . $this->request->getUri()->getPort();
-        }
-        return [$scheme, $port];
+        return $scheme;
     }
 
     /**
-     * Gets the route host
+     * 获取route的scheme和port
      * @param Route $route
      * @param array $parameters
      * @return string
      */
-    protected function getRouteHost(Route $route, $parameters)
+    protected function getRouteSchemeAndHost(Route $route, array $parameters = [])
     {
-        //If the route has no required host, returns the current host
-        if (!$route->getHost()) {
-            return $this->request->getUri()->getHost();
+        $scheme = $this->request->getUri()->getScheme();
+        $requiredSchemes = $route->getSchemes();
+        if ($requiredSchemes && !in_array($scheme, $requiredSchemes)) {
+            $scheme = $requiredSchemes[0];
         }
-        return $this->replaceRouteNamedParameters($route->getHost(), $parameters, $route->getRequirements());
+        if (!$route->getHost()) {
+            $host = $this->request->getUri()->getHost();
+            if ($port = $this->request->getUri()->getPort()) {
+                if (strcasecmp($scheme, 'http') == 0 && $port != 80) {
+                    $host .= ':' . $this->request->getUri()->getPort();
+                } elseif (strcasecmp($scheme, 'https') == 0 && $port != 443) {
+                    $host .= ':' . $this->request->getUri()->getPort();
+                }
+            }
+        } else {
+            $host = $this->replaceRouteNamedParameters($route->getHost(), $parameters, $route->getRequirements());
+        }
+        return $scheme . '://' . $host;
     }
 
     /**
