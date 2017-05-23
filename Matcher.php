@@ -68,11 +68,11 @@ class Matcher
     {
         $requiredMethods = [];
         foreach ($this->routes as $route) {
-            if ($this->matchSchema($route, $request)
-                && $this->matchHost($route, $request)
-                && $this->matchPath($request->getUri()->getPath(), $route)
+            if (static::matchSchema($route, $request)
+                && static::matchHost($route, $request)
+                && static::matchPath($request->getUri()->getPath(), $route)
             ) {
-                if ($this->matchMethod($route, $request)) {
+                if (static::matchMethod($route, $request)) {
                     return $route;
                 } else {
                     $requiredMethods = array_merge($requiredMethods, $route->getMethods());
@@ -93,7 +93,7 @@ class Matcher
     protected function findRoute($path)
     {
         foreach ($this->routes as $route) {
-            if ($this->matchPath($path, $route)) {
+            if (static::matchPath($path, $route)) {
                 return $route;
             }
         }
@@ -106,7 +106,7 @@ class Matcher
      * @param ServerRequestInterface $request
      * @return boolean
      */
-    protected function matchHost(Route $route, $request)
+    protected static function matchHost(Route $route, $request)
     {
         if (empty($route->getHost())) {
             return true;
@@ -127,7 +127,7 @@ class Matcher
      * @param ServerRequestInterface $request
      * @return boolean
      */
-    protected function matchMethod(Route $route, $request)
+    protected static function matchMethod(Route $route, $request)
     {
         if (!$route->getMethods()) {
             return true;
@@ -141,7 +141,7 @@ class Matcher
      * @param ServerRequestInterface $request
      * @return boolean
      */
-    protected function matchSchema(Route $route, $request)
+    protected static function matchSchema(Route $route, $request)
     {
         if (!$route->getSchemes()) {
             return true;
@@ -155,7 +155,7 @@ class Matcher
      * @param Route $route
      * @return boolean
      */
-    protected function matchPath($path, Route $route)
+    protected static function matchPath($path, Route $route)
     {
         if (preg_match($route->compile()->getPathRegex(), rawurldecode($path), $matches)) {
             $routeParameters = array_filter($matches, function($value, $key){
@@ -172,7 +172,7 @@ class Matcher
      * @param Route $route
      * @return array
      */
-    protected function computeRouteParameters(Route $route)
+    protected static function computeRouteParameters(Route $route)
     {
         return array_replace($route->getDefaults(),
             $route->getParameter('_hostMatches', []),
