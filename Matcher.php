@@ -13,7 +13,7 @@ class Matcher
 {
     /**
      * Routes collection
-     * @var Route[]
+     * @var RouteCollection
      */
     protected $routes;
 
@@ -175,8 +175,8 @@ class Matcher
     protected static function computeRouteParameters(Route $route)
     {
         return array_replace($route->getDefaults(),
-            $route->getParameter('_hostMatches', []),
-            $route->getParameter('_pathMatches', [])
+            $route->getParameter('_hostMatches') ?: [],
+            $route->getParameter('_pathMatches', []) ?: []
         );
     }
 }

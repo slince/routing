@@ -57,7 +57,6 @@ class Generator
         if ($absolute && !$this->request) {
             throw new InvalidArgumentException("You must provide the request context to generate the full url");
         }
-        $computedParameters = array_replace($route->getDefaults(), $parameters);
         $urlSlugs = [];
         //generate absolute url
         if ($absolute) {
@@ -66,7 +65,7 @@ class Generator
         $urlSlugs[] = $this->getRoutePath($route, $parameters);
         // Build query string
         $extraParameters = array_diff_key($parameters, array_flip($this->lastRouteVariables));
-        if ($extraParameters && $query = http_build_query($extraParameters, '', '&')) {
+        if (!empty($extraParameters) && $query = http_build_query($extraParameters, '', '&')) {
             $urlSlugs[] =  '?' . $query;
         }
         return implode('', $urlSlugs);

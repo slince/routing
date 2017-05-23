@@ -86,25 +86,25 @@ class Route
     protected $action;
 
     /**
-     * schemes
+     * Schemes
      * @var array
      */
     protected $schemes = [];
 
     /**
-     * host
+     * Host
      * @var string
      */
     protected $host;
 
     /**
-     * methods
+     * Methods
      * @var array
      */
     protected $methods = [];
 
     /**
-     * requirements
+     * Requirements
      * @var array
      */
     protected $requirements = [];
@@ -116,7 +116,7 @@ class Route
     protected $defaults= [];
 
     /**
-     * parameters
+     * Parameters
      * @var array
      */
     protected $parameters = [];
@@ -145,12 +145,20 @@ class Route
      */
     protected $pathRegex;
 
+    /**
+     * Array of host variables
+     * @var array
+     */
     protected $hostVariables = [];
 
+    /**
+     * Array of path variables
+     * @var array
+     */
     protected $pathVariables = [];
 
     /**
-     * 变量
+     * Array of variables
      * @var array
      */
     protected $variables = [];
@@ -163,7 +171,7 @@ class Route
     /**
      * Sets route name
      * @param string $name
-     * @return $this;
+     * @return Route;
      */
     public function setName($name)
     {
@@ -182,7 +190,7 @@ class Route
     /**
      * Sets the route path
      * @param string $path
-     * @return $this
+     * @return Route
      */
     public function setPath($path)
     {
@@ -211,7 +219,7 @@ class Route
     /**
      * Sets the action for the route
      * @param mixed $action
-     * @return $this
+     * @return Route
      */
     public function setAction($action)
     {
@@ -231,7 +239,7 @@ class Route
     /**
      * Sets the route schemes
      * @param array $schemes
-     * @return $this
+     * @return Route
      */
     public function setSchemes(array $schemes)
     {
@@ -261,7 +269,7 @@ class Route
     /**
      * Sets the route request methods
      * @param array $methods
-     * @return $this
+     * @return Route
      */
     public function setMethods(array $methods)
     {
@@ -291,7 +299,7 @@ class Route
     /**
      * Set the route host
      * @param string $host
-     * @return $this
+     * @return Route
      */
     public function setHost($host)
     {
@@ -320,7 +328,7 @@ class Route
     /**
      * Sets the requirements of the route
      * @param array $requirements
-     * @return $this
+     * @return Route
      */
     public function setRequirements(array $requirements)
     {
@@ -332,7 +340,7 @@ class Route
      * Sets a requirement by specified name and value
      * @param string $name
      * @param string $requirement
-     * @return $this
+     * @return Route
      */
     public function setRequirement($name, $requirement)
     {
@@ -343,7 +351,7 @@ class Route
     /**
      * Add the requirements of the route (not replace)
      * @param array $requirements
-     * @return $this
+     * @return Route
      */
     public function addRequirements(array $requirements)
     {
@@ -393,7 +401,7 @@ class Route
      * Sets a default item
      * @param string $name
      * @param string $value
-     * @return $this
+     * @return Route
      */
     public function setDefault($name, $value)
     {
@@ -404,7 +412,7 @@ class Route
     /**
      * Sets the defaults
      * @param array $defaults
-     * @return $this
+     * @return Route
      */
     public function setDefaults(array $defaults)
     {
@@ -415,7 +423,7 @@ class Route
     /**
      * Add the defaults of the route (not replace)
      * @param array $defaults
-     * @return $this
+     * @return Route
      */
     public function addDefaults(array $defaults)
     {
@@ -447,7 +455,7 @@ class Route
      * Sets the route parameters
      * @param string $name
      * @param mixed $parameter
-     * @return $this
+     * @return Route
      */
     public function setParameter($name, $parameter)
     {
@@ -458,12 +466,11 @@ class Route
     /**
      * Gets the route parameters
      * @param string $name
-     * @param string $default
      * @return mixed
      */
-    public function getParameter($name, $default = null)
+    public function getParameter($name)
     {
-        return isset($this->parameters[$name]) ? $this->parameters[$name] : $default;
+        return isset($this->parameters[$name]) ? $this->parameters[$name] : null;
     }
 
     /**
@@ -479,7 +486,7 @@ class Route
     /**
      * Sets all parameters
      * @param array $parameters
-     * @return $this
+     * @return Route
      */
     public function setParameters(array $parameters)
     {
@@ -488,9 +495,9 @@ class Route
     }
 
     /**
-     * Add the paramters of the route (not replace)
+     * Add the parameters of the route (not replace)
      * @param array $parameters
-     * @return $this
+     * @return Route
      */
     public function addParameters(array $parameters)
     {
