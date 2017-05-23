@@ -145,6 +145,10 @@ class Route
      */
     protected $pathRegex;
 
+    protected $hostVariables = [];
+
+    protected $pathVariables = [];
+
     /**
      * 变量
      * @var array
@@ -536,9 +540,10 @@ class Route
     {
         if (!$this->isCompiled || $reCompile) {
             if ($this->getHost()) {
-                $this->hostRegex = $this->parseToRegex($this->getHost());
+                $this->hostRegex = $this->parsePattern($this->getHost(), true);
             }
-            $this->pathRegex = $this->parseToRegex($this->getPath());
+            $this->pathRegex = $this->parsePattern($this->getPath(), false);
+            $this->variables = array_merge($this->hostVariables, $this->pathVariables);
             $this->isCompiled = true;
         }
         return $this;
@@ -556,18 +561,28 @@ class Route
     /**
      * Parses the path to regex
      * @param string $path
+     * @param boolean $isHost
      * @return string
      */
-    protected function parseToRegex($path)
+    protected function parsePattern($path, $isHost)
     {
-        $regex = preg_replace_callback('#\{([a-zA-Z0-9_,]*)\}#i', function ($matches) {
-            $this->variables[] = $matches[1];
-            $regex = "(?P<{$matches[1]}>" . (isset($this->requirements[$matches[1]]) ? $this->requirements[$matches[1]] : '.+') . ')';
+        $variables = [];
+        $regex = preg_replace_callback('#[/\.]?\{([a-zA-Z0-9_,]*)\}#i', function ($matches) use(&$variables){
+            $variables[] = $matches[1];
+            $subRegex = "(?P<{$matches[1]}>" . (isset($this->requirements[$matches[1]]) ? $this->requirements[$matches[1]] : '[^/\.]+') . ')';
+            $regex = str_replace('\{' . $matches[1] . '\}', $subRegex, preg_quote($matches[0], '#'));
             if ($this->hasDefault($matches[1])) {
-                $regex .= '?';
+                $regex = "(?:{$regex})?";
             }
             return $regex;
         }, $path);
-        return "#^{$regex}$#i";
+        $regex = "#^{$regex}$#";
+        if ($isHost) {
+            $regex .= 'i';
+            $this->hostVariables = $variables;
+        } else {
+            $this->pathVariables = $variables;
+        }
+        return $regex;
     }
 }

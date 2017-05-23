@@ -15,7 +15,7 @@ trait RouteBuilderTrait
      */
     public function http($path, $action)
     {
-        return $this->addNewRoute($path, $action)->setSchemes(['http']);
+        return $this->create($path, $action)->setSchemes(['http']);
     }
 
     /**
@@ -26,7 +26,7 @@ trait RouteBuilderTrait
      */
     public function https($path, $action)
     {
-        return $this->addNewRoute($path, $action)->setSchemes(['https']);
+        return $this->create($path, $action)->setSchemes(['https']);
     }
 
     /**
@@ -37,7 +37,7 @@ trait RouteBuilderTrait
      */
     public function get($path, $action)
     {
-        return $this->addNewRoute($path, $action)->setMethods([
+        return $this->create($path, $action)->setMethods([
             Route::GET,
             Route::HEAD
         ]);
@@ -51,7 +51,7 @@ trait RouteBuilderTrait
      */
     public function post($path, $action)
     {
-        return $this->addNewRoute($path, $action)->setMethods([
+        return $this->create($path, $action)->setMethods([
             Route::POST
         ]);
     }
@@ -64,7 +64,7 @@ trait RouteBuilderTrait
      */
     public function put($path, $action)
     {
-        return $this->addNewRoute($path, $action)->setMethods([
+        return $this->create($path, $action)->setMethods([
             Route::PUT
         ]);
     }
@@ -77,7 +77,7 @@ trait RouteBuilderTrait
      */
     public function patch($path, $action)
     {
-        return $this->addNewRoute($path, $action)->setMethods([
+        return $this->create($path, $action)->setMethods([
             Route::PATCH
         ]);
     }
@@ -90,7 +90,7 @@ trait RouteBuilderTrait
      */
     public function delete($path, $action)
     {
-        return $this->addNewRoute($path, $action)->setMethods([
+        return $this->create($path, $action)->setMethods([
             Route::DELETE
         ]);
     }
@@ -101,7 +101,7 @@ trait RouteBuilderTrait
      * @param mixed $action
      * @return Route
      */
-    public function addNewRoute($path, $action)
+    public function create($path, $action)
     {
         $route = new Route($path, $action);
         $this->add($route);

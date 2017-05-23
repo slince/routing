@@ -8,6 +8,7 @@ use Slince\Routing\Matcher;
 use Slince\Routing\RouteCollection;
 use Slince\Routing\Route;
 use Zend\Diactoros\ServerRequest;
+use Zend\Diactoros\ServerRequestFactory;
 
 class MatcherTest extends TestCase
 {
@@ -24,7 +25,7 @@ class MatcherTest extends TestCase
     {
         // test the patterns are matched and parameters are returned
         $routes = new RouteCollection();
-        $route = $routes->http('/foo/{bar}', 'action1');
+        $route = $routes->create('/foo/{bar}', 'action1');
         $matcher = new Matcher($routes);
         try {
             $matcher->match('/no-match');
@@ -32,11 +33,11 @@ class MatcherTest extends TestCase
         } catch (RouteNotFoundException $e) {
         }
         $this->assertTrue ($route === $matcher->match('/foo/baz'));
-        $this->assertEquals(['foo' => 'baz'], $route->getComputedParameters());
+        $this->assertEquals(['bar' => 'baz'], $route->getComputedParameters());
 
         // test defaults
         $routes = new RouteCollection();
-        $routes->http('/foo/{bar}', 'action1')
+        $routes->create('/foo/{bar}', 'action1')
             ->setDefaults(['def' => 'test']);
         $matcher = new Matcher($routes);
         $route = $matcher->match('/foo/baz');
@@ -44,14 +45,15 @@ class MatcherTest extends TestCase
 
         // test that route "method" is ignored if match simple path
         $routes = new RouteCollection();
-        $route = $routes->http('/foo', 'action1')->setMethods(['GET', 'HEAD']);
+        $route = $routes->create('/foo', 'action1')->setMethods(['GET', 'HEAD']);
         $matcher = new Matcher($routes);
         $this->assertTrue ($route === $matcher->match('/foo'));
 
         //optional placeholder
         $routes = new RouteCollection();
-        $route = $routes->http('/foo/{bar}', 'action1')
+        $route = $routes->create('/foo/{bar}', 'action1')
             ->setDefaults(['bar' => 'baz']);
+        $matcher = new Matcher($routes);
         $this->assertTrue ($route === $matcher->match('/foo'));
     }
 
@@ -68,14 +70,15 @@ class MatcherTest extends TestCase
     {
         $routes = new RouteCollection();
         $routes->post('/foo', 'action1');
-        $routes->http('/foo', 'action2')->setMethods(['put', 'delete']);
+        $routes->create('/foo', 'action2')->setMethods(['put', 'delete']);
         $matcher = new Matcher($routes);
         try {
             $request = new ServerRequest(['HTTP_REQUEST_METHOD' => 'HEAD'], [], 'http://domain.com/foo');
             $matcher->matchRequest($request);
             $this->fail();
         } catch (MethodNotAllowedException $e) {
-            $this->assertEquals(array('POST', 'PUT', 'DELETE'), $e->getAllowedMethods());
+            print_r($e->getAllowedMethods());exit;
+            $this->assertEquals(['POST', 'PUT', 'DELETE'], $e->getAllowedMethods());
         }
     }
 
@@ -102,7 +105,7 @@ class MatcherTest extends TestCase
     public function testMatchSpecialRouteName()
     {
         $routes = new RouteCollection();
-        $routes->http('/foo', 'action1')->setName('$péß^a|');
+        $routes->create('/foo', 'action1')->setName('$péß^a|');
         $matcher = new Matcher($routes);
         $this->assertEquals('$péß^a|', $matcher->match('/foo')->getName());
     }
@@ -111,7 +114,7 @@ class MatcherTest extends TestCase
     {
         $routes = new RouteCollection();
         $chars = '!"$%éà &\'()*+,./:;<=>@ABCDEFGHIJKLMNOPQRSTUVWXYZ\\[]^_`abcdefghijklmnopqrstuvwxyz{|}~-';
-        $routes->http('/{foo}/bar', 'action')
+        $routes->create('/{foo}/bar', 'action')
             ->setRequirements([
                 'foo' => '['.preg_quote($chars).']+'
             ]);
@@ -124,14 +127,14 @@ class MatcherTest extends TestCase
     public function testMatchRegression()
     {
         $routes = new RouteCollection();
-        $routes->http('/foo/{foo}', 'action');
-        $routes->http('/foo/bar/{foo}', 'action2');
+        $routes->create('/foo/{foo}', 'action');
+        $routes->create('/foo/bar/{foo}', 'action2');
 
         $matcher = new Matcher($routes);
         $this->assertEquals(['foo' => 'bar'], $matcher->match('/foo/bar/bar')->getComputedParameters());
 
         $routes = new RouteCollection();
-        $routes->http('/{bar}', 'action');
+        $routes->create('/{bar}', 'action');
         $matcher = new Matcher($routes);
         $this->expectException(RouteNotFoundException::class);
         $matcher->match('/');
@@ -140,7 +143,7 @@ class MatcherTest extends TestCase
     public function testDefaultRequirementForOptionalVariables()
     {
         $routes = new RouteCollection();
-        $routes->http('/{page}.{_format}', 'action')->setDefaults([
+        $routes->create('/{page}.{_format}', 'action')->setDefaults([
             '_format' => 'html'
         ]);
         $matcher = new Matcher($routes);
@@ -151,7 +154,7 @@ class MatcherTest extends TestCase
     public function testMatchingIsEager()
     {
         $routes = new RouteCollection();
-        $routes->http('/{foo}-{bar}-', 'action')
+        $routes->create('/{foo}-{bar}-', 'action')
             ->setRequirements([
                 'foo' => '.+',
                 'bar' => '.+'
@@ -164,11 +167,12 @@ class MatcherTest extends TestCase
     public function testAdjacentVariables()
     {
         $routes = new RouteCollection();
-        $routes->http('/{w}{x}{y}{z}.{_format}', 'action')
+        $route = $routes->create('/{w}{x}{y}{z}.{_format}', 'action')
             ->setDefaults(['z' => 'default-z', '_format' => 'html'])
             ->setRequirements(['y' => 'y|Y']);
 
         $matcher = new Matcher($routes);
+
         $this->assertEquals(array('w' => 'wwwww', 'x' => 'x', 'y' => 'Y', 'z' => 'Z', '_format' => 'xml'),
             $matcher->match('/wwwwwxYZ.xml')->getComputedParameters());
 
@@ -187,13 +191,9 @@ class MatcherTest extends TestCase
     public function testOptionalVariableWithNoRealSeparator()
     {
         $routes = new RouteCollection();
-        $route = $routes->http('/get/{what}', 'action')
+        $routes->create('/get{what}', 'action')
             ->setDefaults(['what' => 'All']);
 
-        $regex = $route->compile()->getPathRegex();
-        var_dump($regex);
-        var_dump(preg_match($regex, '/get/'));
-        exit;
         $matcher = new Matcher($routes);
 
         $this->assertEquals(['what' => 'All'], $matcher->match('/get')->getComputedParameters());
@@ -205,7 +205,7 @@ class MatcherTest extends TestCase
     public function testRequiredVariableWithNoRealSeparator()
     {
         $routes = new RouteCollection();
-        $routes->http('/get{what}Suffix', 'action');
+        $routes->create('/get{what}Suffix', 'action');
         $matcher = new Matcher($routes);
         $this->assertEquals(['what' => 'Sites'], $matcher->match('/getSitesSuffix')->getComputedParameters());
     }
@@ -213,7 +213,14 @@ class MatcherTest extends TestCase
     public function testDefaultRequirementOfVariable()
     {
         $routes = new RouteCollection();
-        $routes->http('/{page}.{_format}', 'action');
+        $route = $routes->create('/{page}.{_format}', 'action')
+            ->setRequirement('_format', '[\w\.]+');
+
+
+//                echo $regex = $route->compile()->getPathRegex();
+//        var_dump(preg_match($regex, '/index.mobile.html'));
+//exit;
+
         $matcher = new Matcher($routes);
         $this->assertEquals(['page' => 'index', '_format' => 'mobile.html'],
             $matcher->match('/index.mobile.html')->getComputedParameters());
@@ -222,7 +229,7 @@ class MatcherTest extends TestCase
     public function testDefaultRequirementOfVariableDisallowsSlash()
     {
         $routes = new RouteCollection();
-        $routes->http('/{page}.{_format}', 'action');
+        $routes->create('/{page}.{_format}', 'action');
         $matcher = new Matcher($routes);
         $this->expectException(RouteNotFoundException::class);
         $matcher->match('/index.sl/ash');
@@ -231,7 +238,7 @@ class MatcherTest extends TestCase
     public function testDefaultRequirementOfVariableDisallowsNextSeparator()
     {
         $routes = new RouteCollection();
-        $routes->http('/{page}.{_format}', 'action')
+        $routes->create('/{page}.{_format}', 'action')
             ->setDefaults(['_format' => 'html|xml']);
         $matcher = new Matcher($routes);
         $this->expectException(RouteNotFoundException::class);
@@ -263,7 +270,7 @@ class MatcherTest extends TestCase
     public function testDecodeOnce()
     {
         $routes = new RouteCollection();
-        $routes->http('/foo/{foo}', 'action');
+        $routes->create('/foo/{foo}', 'action');
         $matcher = new Matcher($routes);
         $this->assertEquals(['foo' => 'bar%23'], $matcher->match('/foo/bar%2523')->getComputedParameters());
     }
@@ -271,7 +278,7 @@ class MatcherTest extends TestCase
     public function testWithHost()
     {
         $routes = new RouteCollection();
-        $routes->http('/foo/{foo}', 'action')->setHost('{locale}.example.com');
+        $routes->create('/foo/{foo}', 'action')->setHost('{locale}.example.com');
 
         $matcher = new Matcher($routes);
         $request = new ServerRequest(['HTTP_REQUEST_METHOD' => 'post'], [], 'http:// en.example.com/foo/bar');
@@ -281,7 +288,7 @@ class MatcherTest extends TestCase
     public function testWithOutHostHostDoesNotMatch()
     {
         $routes = new RouteCollection();
-        $routes->http('/foo/{foo}', 'action')->setHost('{locale}.example.com');
+        $routes->create('/foo/{foo}', 'action')->setHost('{locale}.example.com');
         $matcher = new Matcher($routes);
         $request = new ServerRequest(['HTTP_REQUEST_METHOD' => 'post'], [], 'http://example.com/foo/bar');
         $this->expectException(RouteNotFoundException::class);
@@ -291,7 +298,7 @@ class MatcherTest extends TestCase
     public function testPathIsCaseSensitive()
     {
         $routes = new RouteCollection();
-        $routes->http('/locale','action')->setRequirements(['locale' => 'EN|FR|DE']);
+        $routes->create('/locale','action')->setRequirements(['locale' => 'EN|FR|DE']);
         $matcher = new Matcher($routes);
         $this->expectException(RouteNotFoundException::class);
         $matcher->match('/en');
@@ -300,7 +307,7 @@ class MatcherTest extends TestCase
     public function testHostIsCaseInsensitive()
     {
         $routes = new RouteCollection();
-        $routes->http('/','action')->setRequirements(['locale' => 'EN|FR|DE'])
+        $routes->create('/','action')->setRequirements(['locale' => 'EN|FR|DE'])
             ->setHost('{locale}.example.com');
         $matcher = new Matcher($routes);
         $this->expectException(RouteNotFoundException::class);
