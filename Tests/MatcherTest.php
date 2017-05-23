@@ -77,7 +77,6 @@ class MatcherTest extends TestCase
             $matcher->matchRequest($request);
             $this->fail();
         } catch (MethodNotAllowedException $e) {
-            print_r($e->getAllowedMethods());exit;
             $this->assertEquals(['POST', 'PUT', 'DELETE'], $e->getAllowedMethods());
         }
     }
@@ -147,7 +146,7 @@ class MatcherTest extends TestCase
             '_format' => 'html'
         ]);
         $matcher = new Matcher($routes);
-        $this->assertEquals(['page' => 'my-page', '_format' => 'xml'], $matcher->match('/personal-page.xml')
+        $this->assertEquals(['page' => 'personal-page', '_format' => 'xml'], $matcher->match('/personal-page.xml')
             ->getComputedParameters());
     }
 
@@ -184,8 +183,9 @@ class MatcherTest extends TestCase
         // z and _format are optional.
         $this->assertEquals(array('w' => 'wwwww', 'x' => 'x', 'y' => 'y', 'z' => 'default-z', '_format' => 'html'),
             $matcher->match('/wwwwwxy')->getComputedParameters());
-        $this->expectException(RouteNotFoundException::class);
-        $matcher->match('/wxy.html');
+
+        $this->assertEquals(array('w' => 'w', 'x' => 'x', 'y' => 'y', 'z' => 'default-z', '_format' => 'xml'),
+            $matcher->match('/wxy.xml')->getComputedParameters());
     }
 
     public function testOptionalVariableWithNoRealSeparator()
@@ -223,7 +223,7 @@ class MatcherTest extends TestCase
 
         $matcher = new Matcher($routes);
         $this->assertEquals(['page' => 'index', '_format' => 'mobile.html'],
-            $matcher->match('/index.mobile.html')->getComputedParameters());
+        $matcher->match('/index.mobile.html')->getComputedParameters());
     }
 
     public function testDefaultRequirementOfVariableDisallowsSlash()
@@ -259,10 +259,9 @@ class MatcherTest extends TestCase
     public function testCondition()
     {
         $routes = new RouteCollection();
-        $routes->post('/foo', 'action')
-            ->setDefaults(['_format' => 'html|xml']);
+        $routes->post('/foo', 'action');
         $matcher = new Matcher($routes);
-        $this->expectException(RouteNotFoundException::class);
+        $this->expectException(MethodNotAllowedException::class);
         $request = new ServerRequest(['HTTP_REQUEST_METHOD' => 'post'], [], 'http://www.domain.com/foo');
         $matcher->matchRequest($request);
     }
@@ -281,8 +280,8 @@ class MatcherTest extends TestCase
         $routes->create('/foo/{foo}', 'action')->setHost('{locale}.example.com');
 
         $matcher = new Matcher($routes);
-        $request = new ServerRequest(['HTTP_REQUEST_METHOD' => 'post'], [], 'http:// en.example.com/foo/bar');
-        $this->assertEquals(['foo' => 'bar', 'locale' => 'en'], $matcher->matchRequest($request));
+        $request = new ServerRequest(['HTTP_REQUEST_METHOD' => 'post'], [], 'http://en.example.com/foo/bar');
+        $this->assertEquals(['foo' => 'bar', 'locale' => 'en'], $matcher->matchRequest($request)->getComputedParameters());
     }
 
     public function testWithOutHostHostDoesNotMatch()
@@ -310,7 +309,6 @@ class MatcherTest extends TestCase
         $routes->create('/','action')->setRequirements(['locale' => 'EN|FR|DE'])
             ->setHost('{locale}.example.com');
         $matcher = new Matcher($routes);
-        $this->expectException(RouteNotFoundException::class);
         $request = new ServerRequest(['HTTP_REQUEST_METHOD' => 'post'], [], 'http://en.example.com/');
         $this->assertEquals(array('locale' => 'en'), $matcher->matchRequest($request)->getComputedParameters());
     }

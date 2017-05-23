@@ -115,8 +115,8 @@ class RouteTest extends TestCase
         $this->assertNull($route->getPathRegex());
         $route->compile();
         $this->assertTrue($route->isCompiled());
-        $this->assertEquals('#^(?P<locale>.+).domain.com$#i',  $route->getHostRegex());
-        $this->assertEquals('#^/(?P<foo>\w+)$#i',  $route->getPathRegex());
+        $this->assertEquals('#^(?P<locale>[^/\.]+).domain.com$#i',  $route->getHostRegex());
+        $this->assertEquals('#^/(?P<foo>\w+)$#',  $route->getPathRegex());
 
         $this->assertEquals(['locale', 'foo'], $route->getVariables());
     }

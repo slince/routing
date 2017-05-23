@@ -17,5 +17,13 @@ $route = $routes->create('/{w}{x}{y}{z}.{_format}', 'action')
     ->setRequirements(['y' => 'y|Y']);
 
 $matcher = new Matcher($routes);
-echo $regex = $route->compile()->getPathRegex();
-var_dump(preg_match($regex, '/text1-text2-text3-text4-'));
+
+print_r($matcher->match('/wxy.xml'));
+
+
+$route = $routes->create('/foo{bar}', 'action')
+    ->setDefaults(['bar' => 'default-bar']);
+
+$matcher = new Matcher($routes);
+
+print_r($matcher->match('/fooall'));

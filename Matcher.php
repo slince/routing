@@ -75,7 +75,7 @@ class Matcher
                 if ($this->matchMethod($route, $request)) {
                     return $route;
                 } else {
-                    $requiredMethods += $route->getMethods();
+                    $requiredMethods = array_merge($requiredMethods, $route->getMethods());
                 }
             }
         }
@@ -112,7 +112,9 @@ class Matcher
             return true;
         }
         if (preg_match($route->compile()->getHostRegex(), $request->getUri()->getHost(), $matches)) {
-            $routeParameters = array_intersect_key($matches, array_flip($route->getVariables()));
+            $routeParameters = array_filter($matches, function($value, $key){
+                return !is_int($key) && $value;
+            }, ARRAY_FILTER_USE_BOTH);
             $route->setParameter('_hostMatches', $routeParameters);
             return true;
         }
@@ -156,7 +158,9 @@ class Matcher
     protected function matchPath($path, Route $route)
     {
         if (preg_match($route->compile()->getPathRegex(), rawurldecode($path), $matches)) {
-            $routeParameters = array_intersect_key($matches, array_flip($route->getVariables()));
+            $routeParameters = array_filter($matches, function($value, $key){
+                return !is_int($key) && $value;
+            }, ARRAY_FILTER_USE_BOTH);
             $route->setParameter('_pathMatches', $routeParameters);
             return true;
         }
