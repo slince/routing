@@ -171,7 +171,7 @@ class Route
     /**
      * Sets route name
      * @param string $name
-     * @return Route;
+     * @return Route
      */
     public function setName($name)
     {

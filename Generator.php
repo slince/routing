@@ -71,16 +71,6 @@ class Generator
         return implode('', $urlSlugs);
     }
 
-    protected function getRouteScheme(Route $route)
-    {
-        $scheme = $this->request->getUri()->getScheme();
-        $requiredSchemes = $route->getSchemes();
-        if ($requiredSchemes && !in_array($scheme, $requiredSchemes)) {
-            $scheme = $requiredSchemes[0];
-        }
-        return $scheme;
-    }
-
     /**
      * 获取route的scheme和port
      * @param Route $route
@@ -91,7 +81,7 @@ class Generator
     {
         $scheme = $this->request->getUri()->getScheme();
         $requiredSchemes = $route->getSchemes();
-        if ($requiredSchemes && !in_array($scheme, $requiredSchemes)) {
+        if (!empty($requiredSchemes) && !in_array($scheme, $requiredSchemes)) {
             $scheme = $requiredSchemes[0];
         }
         if (!$route->getHost()) {

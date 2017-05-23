@@ -176,7 +176,7 @@ class Matcher
     {
         return array_replace($route->getDefaults(),
             $route->getParameter('_hostMatches') ?: [],
-            $route->getParameter('_pathMatches', []) ?: []
+            $route->getParameter('_pathMatches') ?: []
         );
     }
 }
