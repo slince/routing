@@ -42,7 +42,7 @@ $route = new Slince\Routing\Route('/products/{id}', 'Products::view');
 $routes->add($route);
 ```
 The route path contain the placeholder `{id}` which matches everything except "/" and "."
-You can set custom requirements with `setRequirement` or `setRequirements`
+You can set custom requirements with `setRequirement`  method or `setRequirements` method.
 
 ```php
 $route->setRequirements([
