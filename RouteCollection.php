@@ -38,7 +38,9 @@ class RouteCollection implements \Countable, \IteratorAggregate
 
     public function __construct(array $routes = [])
     {
-        $this->routes = $routes;
+        foreach ($routes as $route) {
+            $this->add($route);
+        }
     }
 
     /**

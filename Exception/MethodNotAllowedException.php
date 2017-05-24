@@ -21,7 +21,6 @@ class MethodNotAllowedException extends \Exception
 
     /**
      * Gets the allowed HTTP methods.
-     *
      * @return array
      */
     public function getAllowedMethods()
