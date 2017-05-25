@@ -107,6 +107,8 @@ class RouteTest extends TestCase
         $this->assertEquals(['https', 'http'], $route->getSchemes());
         $this->assertTrue($route->hasScheme('htTp'));
         $this->assertTrue($route->hasScheme('httpS'));
+        $route->setSchemes('https');
+        $this->assertTrue($route->hasScheme('https'));
     }
 
     public function testMethod()
@@ -118,6 +120,8 @@ class RouteTest extends TestCase
         $route->setMethods(['gEt', 'PosT']);
         $this->assertEquals(['GET', 'POST'], $route->getMethods());
         $this->assertTrue($route->hasMethod('Get'));
+        $route->setMethods('get');
+        $this->assertTrue($route->hasMethod('get'));
     }
 
     public function testCompile()

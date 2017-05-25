@@ -271,7 +271,7 @@ class Route
      * @param string|array $methods
      * @return Route
      */
-    public function setMethods(array $methods)
+    public function setMethods($methods)
     {
         $this->methods = array_map('strtoupper', (array)$methods);
         return $this;
