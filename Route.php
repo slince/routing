@@ -574,11 +574,11 @@ class Route
     protected function parsePattern($path, $isHost)
     {
         $variables = [];
-        $regex = preg_replace_callback('#[/\.]?\{([a-zA-Z0-9_,]*)\}#i', function ($matches) use(&$variables){
-            $variables[] = $matches[1];
-            $subRegex = "(?P<{$matches[1]}>" . (isset($this->requirements[$matches[1]]) ? $this->requirements[$matches[1]] : '[^/\.]+') . ')';
-            $regex = str_replace('\{' . $matches[1] . '\}', $subRegex, preg_quote($matches[0], '#'));
-            if ($this->hasDefault($matches[1])) {
+        $regex = preg_replace_callback('#[/\.]?\{([a-zA-Z0-9_,]*)\}#i', function ($match) use(&$variables){
+            $variables[] = $match[1];
+            $subRegex = "(?P<{$match[1]}>" . (isset($this->requirements[$match[1]]) ? $this->requirements[$match[1]] : '[^/\.]+') . ')';
+            $regex = str_replace('\{' . $match[1] . '\}', $subRegex, preg_quote($match[0], '#'));
+            if ($this->hasDefault($match[1])) {
                 $regex = "(?:{$regex})?";
             }
             return $regex;
