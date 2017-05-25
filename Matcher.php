@@ -168,7 +168,7 @@ class Matcher
     }
 
     /**
-     * 处理路由参数
+     * Computes route parameters
      * @param Route $route
      * @return array
      */

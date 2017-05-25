@@ -27,6 +27,7 @@ $matcher = new Slince\Routing\Matcher($routes);
 $generator = new Slince\Routing\Matcher($request);
 
 $route = $matcher->matchRequest($request); //Matches the current request
+var_dump($route->getComputedParamters()); //Dumps route computed paramters
 echo $generator->generate($route); //Generates path 
 
 $route = $routes->getByAction('Products::index');
