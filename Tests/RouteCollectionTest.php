@@ -7,6 +7,18 @@ use Slince\Routing\RouteCollection;
 
 class RouteCollectionTest extends TestCase
 {
+    public function testConstructor()
+    {
+        $routes = [
+            (new Route('/foo', 'action1'))->setName('foo'),
+            (new Route('/bar', 'action2')),
+        ];
+        $routes = new RouteCollection($routes);
+        $this->assertCount(2, $routes);
+        $this->assertEquals('/foo', $routes->getByName('foo')->getPath());
+        $this->assertEquals('/bar', $routes->getByAction('action2')->getPath());
+    }
+
     public function testAdd()
     {
         $routes = new RouteCollection();

@@ -173,7 +173,15 @@ class GeneratorTest extends TestCase
         $route = new Route('/foo/{bar}', 'action');
         $generator = new Generator();
         $this->expectException(InvalidArgumentException::class);
-        $generator->generate($route, [], true);
+        $generator->generate($route, []);
+    }
+
+    public function testUrlWitNullRequiredParameters()
+    {
+        $route = new Route('/foo/{bar}', 'action');
+        $generator = new Generator();
+        $this->expectException(InvalidArgumentException::class);
+        $generator->generate($route, ['bar' => null]);
     }
 
     public function testUrlWithInvalidDefaults()
