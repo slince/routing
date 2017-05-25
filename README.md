@@ -19,7 +19,7 @@ composer require slince/routing
 
 ```php
 $routes = new Slince\Routing\RouteCollection();
-$routes->get('/products', 'Products::index');
+$routes->get('/products', 'Products::index')->setName('product_index');
 
 $request = Zend\Diactoros\ServerRequestFactory::fromGlobals(); //Creates the psr7 request instance
 
@@ -27,6 +27,12 @@ $matcher = new Slince\Routing\Matcher($routes);
 $generator = new Slince\Routing\Matcher($request);
 
 $route = $matcher->matchRequest($request); //Matches the current request
+echo $generator->generate($route); //Generates path 
+
+$route = $routes->getByAction('Products::index');
+echo $generator->generate($route); //Generates path 
+
+$route = $routes->getByName('product_index');
 echo $generator->generate($route); //Generates path 
 ```
 
