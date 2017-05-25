@@ -1,4 +1,4 @@
-﻿## Routing Component
+﻿# Routing Component
 
 [![Build Status](https://img.shields.io/travis/slince/routing/master.svg?style=flat-square)](https://travis-ci.org/slince/routing)
 [![Coverage Status](https://img.shields.io/codecov/c/github/slince/routing.svg?style=flat-square)](https://codecov.io/github/slince/routing)
@@ -7,7 +7,7 @@
 
 A flexible web routing component.
 
-### Installation
+## Installation
 
 Install via composer
 
@@ -15,7 +15,7 @@ Install via composer
 composer require slince/routing
 ```
 
-### Quick example
+## Quick example
 
 ```php
 $routes = new Slince\Routing\RouteCollection();
@@ -37,9 +37,9 @@ $route = $routes->getByName('product_index');
 echo $generator->generate($route); //Generates path 
 ```
 
-### Usage
+## Usage
 
-#### Defines routes
+### Defines routes
 
 Creates an instance of `Slince\Routing\RouteCollection` first,
 
@@ -79,13 +79,13 @@ $routes->options('/pattern', 'action');
 $routes->patch('/pattern', 'action');
 ```
 
-#### Customize HTTP verb 
+### Customize HTTP verb 
 
 ```php
 $route->setMethods(['GET', 'POST', 'PUT']);
 ```
 
-#### Host matching
+### Host matching
 
 You can limit a route to specified host with `setHost` method.
 
@@ -96,7 +96,7 @@ $routes->create('/products', 'Products::index')
 
 The route will only match the request with `product.domain.com` domain
 
-#### Force route use HTTPS or HTTP
+### Force route use HTTPS or HTTP
 
 Routing also allow you to define routes using `http` and `https`.
 
@@ -112,7 +112,7 @@ Or customize this.
 $route->setSchemes(['http', 'https']);
 ```
 
-#### Match a path or psr7 request.
+### Match a path or psr7 request.
 
 ```php
 $matcher = new Slince\Routing\Matcher($routes);
@@ -139,7 +139,7 @@ try {
 }
 ```
 
-#### Generate path for a route
+### Generate path for a route
 
 ```php
 $generator = new Slince\Routing\Generator();
@@ -157,6 +157,6 @@ $generator->setRequest($request);
 echo $generator->generate($route, ['id' => 10], true); //will output "{scheme}://{domain}/foo/10"
 ```
 
-### License
+## License
  
 The MIT license. See [MIT](https://opensource.org/licenses/MIT)
