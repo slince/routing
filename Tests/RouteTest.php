@@ -63,6 +63,7 @@ class RouteTest extends TestCase
         $this->assertEquals($route, $route->addRequirements([]));
         $this->assertEquals(['foo' => '\d+', 'bar' => '\d+'], $route->getRequirements());
     }
+
     public function testRequirement()
     {
         $route = new Route('/{foo}', 'Pages::foo');
@@ -70,6 +71,20 @@ class RouteTest extends TestCase
         $route->setRequirement('foo', '\d+');
         $this->assertEquals('\d+', $route->getRequirement('foo'));
         $this->assertTrue($route->hasRequirement('foo'));
+    }
+
+    public function testParameters()
+    {
+        $route = new Route('/{foo}', 'Pages::foo');
+        $route->setParameters(['bar' => 'baz']);
+        $this->assertTrue($route->hasParameter('bar'));
+        $route->setParameters(['foo' => 'bar', 'bar' => 'foo']);
+        $this->assertEquals(['foo' => 'bar', 'bar' => 'foo'], $route->getParameters());
+        $route->addParameters(['foo' => 'baz', 'baz' => 'foo']);
+        $this->assertEquals(['foo' => 'bar', 'bar' => 'foo', 'baz' => 'foo'], $route->getParameters());
+
+        $route->setParameters(['foo' => null]);
+        $this->assertTrue($route->hasParameter('foo'));
     }
 
     public function testHost()

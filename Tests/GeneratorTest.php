@@ -2,18 +2,22 @@
 namespace Slince\Routing\Tests;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestInterface;
 use Slince\Routing\Exception\InvalidArgumentException;
 use Slince\Routing\Generator;
 use Slince\Routing\Route;
 use Zend\Diactoros\ServerRequest;
+use Zend\Diactoros\ServerRequestFactory;
 
 class GeneratorTest extends TestCase
 {
-    protected $request;
-
-    public function setUp()
+    public function testRequest()
     {
-        $this->request = new ServerRequest([], [], 'http://localhost/foo-bar');
+        $generator = new Generator();
+        $this->assertNull($generator->getRequest());
+        $request = ServerRequestFactory::fromGlobals();
+        $generator->setRequest($request);
+        $this->assertInstanceOf(ServerRequestInterface::class, $generator->getRequest());
     }
 
     public function testAbsoluteUrlWithPort80()
@@ -22,6 +26,23 @@ class GeneratorTest extends TestCase
         $route = new Route('/foo', 'action');
         $generator = new Generator($request);
         $this->assertEquals('http://localhost/foo', $generator->generate($route, [], true));
+    }
+
+    public function testAbsoluteUrlWithoutRequest()
+    {
+        $route = new Route('/foo', 'action');
+        $generator = new Generator();
+        $this->expectException(InvalidArgumentException::class);
+        $generator->generate($route, [], true);
+    }
+
+    public function testAbsoluteUrlWithRouteDefines()
+    {
+        $route = new Route('/foo', 'action');
+        $route->setSchemes('https')->setHost('foo.domain.com');
+        $request = new ServerRequest([], [], 'http://localhost/foo-bar');
+        $generator = new Generator($request);
+        $this->assertEquals('https://foo.domain.com/foo', $generator->generate($route, [], true));
     }
 
     public function testAbsoluteSecureUrlWithPort443()
@@ -70,7 +91,6 @@ class GeneratorTest extends TestCase
         $this->assertEquals('/foo', $generator->generate($route));
     }
 
-
     public function testNotPassedOptionalParameterInBetween()
     {
         $route = new Route('/foo/{page}', 'action');
@@ -97,7 +117,6 @@ class GeneratorTest extends TestCase
         ]));
     }
 
-
     public function testCustomHasHigherPriorityThanDefault()
     {
         $route = new Route('/foo/{page}', 'action');
@@ -107,7 +126,6 @@ class GeneratorTest extends TestCase
             'page' => 2,
         ]));
     }
-
 
     public function testGenerateForRouteWithInvalidParameter()
     {
@@ -148,5 +166,23 @@ class GeneratorTest extends TestCase
         $request = new ServerRequest([], [], 'http://localhost/foo-bar');
         $generator = new Generator($request);
         $this->assertEquals('http://localhost/foo', $generator->generate($route, [], true));
+    }
+
+    public function testUrlWithoutRequiredParameters()
+    {
+        $route = new Route('/foo/{bar}', 'action');
+        $generator = new Generator();
+        $this->expectException(InvalidArgumentException::class);
+        $generator->generate($route, [], true);
+    }
+
+    public function testUrlWithInvalidDefaults()
+    {
+        $route = new Route('/foo/{bar}', 'action');
+        $route->setRequirement('bar', '\d+')
+            ->setDefault('bar',  'hello');
+        $generator = new Generator();
+        $this->expectException(InvalidArgumentException::class);
+        echo $generator->generate($route);
     }
 }

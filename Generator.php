@@ -55,7 +55,7 @@ class Generator
     public function generate(Route $route, $parameters = [], $absolute = false)
     {
         if ($absolute && !$this->request) {
-            throw new InvalidArgumentException("You must provide the request context to generate the full url");
+            throw new InvalidArgumentException('You must provide a request context to generate the absolute url');
         }
         $urlSlugs = [];
         //generate absolute url

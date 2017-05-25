@@ -238,12 +238,12 @@ class Route
 
     /**
      * Sets the route schemes
-     * @param array $schemes
+     * @param string|array $schemes
      * @return Route
      */
-    public function setSchemes(array $schemes)
+    public function setSchemes($schemes)
     {
-        $this->schemes = array_map('strtolower', $schemes);
+        $this->schemes = array_map('strtolower', (array)$schemes);
         return $this;
     }
 
@@ -268,12 +268,12 @@ class Route
 
     /**
      * Sets the route request methods
-     * @param array $methods
+     * @param string|array $methods
      * @return Route
      */
     public function setMethods(array $methods)
     {
-        $this->methods = array_map('strtoupper', $methods);
+        $this->methods = array_map('strtoupper', (array)$methods);
         return $this;
     }
 
@@ -480,7 +480,7 @@ class Route
      */
     public function hasParameter($name)
     {
-        return isset($this->parameters[$name]);
+        return array_key_exists($name, $this->parameters);
     }
 
     /**
