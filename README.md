@@ -24,7 +24,7 @@ $routes->get('/products', 'Products::index')->setName('product_index');
 $request = Zend\Diactoros\ServerRequestFactory::fromGlobals(); //Creates the psr7 request instance
 
 $matcher = new Slince\Routing\Matcher($routes);
-$generator = new Slince\Routing\Matcher($request);
+$generator = new Slince\Routing\Generator($request);
 
 $route = $matcher->matchRequest($request); //Matches the current request
 var_dump($route->getComputedParamters()); //Dumps route computed paramters
