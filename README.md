@@ -41,7 +41,7 @@ echo $generator->generate($route); //Generates path
 
 ### Defines routes
 
-Creates an instance of `Slince\Routing\RouteCollection` first,
+#### Creates an instance of `Slince\Routing\RouteCollection` first,
 
 ```php
 $routes = new Slince\Routing\RouteCollection();
@@ -66,7 +66,7 @@ $route->setDefaults([
 ```
 The route can match `/products` and `/products/1`.
 
-Shorthands for HTTP methods are also provided.
+#### Shorthands for HTTP methods are also provided.
 
 ```php
 $routes = new RouteCollection();
@@ -101,7 +101,7 @@ The route will only match the request with `product.domain.com` domain
 Routing also allow you to define routes using `http` and `https`.
 
 ```php
-$routes = new RouteCollection();
+$routes = new Slince\Routing\RouteCollection();
 
 $routes->https('/pattern', 'action');
 $routes->http('/pattern', 'action');
@@ -115,10 +115,15 @@ $route->setSchemes(['http', 'https']);
 ### Match a path or psr7 request.
 
 ```php
+$routes = new Slince\Routing\RouteCollection();
+$routes->create('/products/{id}.{_format}', 'Products::view');
 $matcher = new Slince\Routing\Matcher($routes);
 
 try {
-    $route = $matcher->match('/products');
+    $route = $matcher->match('/products/10.html');
+    
+    print_r($route->getComputedParameters())// ['id' => 10, '_format' => 'html']
+    
 } catch (Slince\Routing\Exception\RouteNotFoundException $e) {
     //404
 }
